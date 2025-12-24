@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://dv5ua0n4rn750"]
+
+[ext_resource type="Script" uid="uid://dojrtx3bqst0g" path="res://Scripts/Card.cs" id="1_d81rb"]
+[ext_resource type="Texture2D" uid="uid://cis7u40gyywdb" path="res://art/CardBase.png" id="2_6u4wf"]
+[ext_resource type="SpriteFrames" uid="uid://bpns76qnn3adn" path="res://art/card_suits.tres" id="3_ktuci"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ktuci"]
+size = Vector2(250, 350)
+
+[node name="Card" type="Area2D" node_paths=PackedStringArray("_suitSprites")]
+scale = Vector2(0.65, 0.65)
+script = ExtResource("1_d81rb")
+_suitSprites = [NodePath("SuitTL"), NodePath("SuitBR")]
+Suit = 1
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_6u4wf")
+
+[node name="SuitTL" type="AnimatedSprite2D" parent="."]
+position = Vector2(-95, -110)
+sprite_frames = ExtResource("3_ktuci")
+animation = &"suit"
+
+[node name="SuitBR" type="AnimatedSprite2D" parent="."]
+position = Vector2(95, 110)
+sprite_frames = ExtResource("3_ktuci")
+animation = &"suit"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ktuci")

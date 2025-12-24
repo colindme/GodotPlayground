@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://cehc1mb3hpnnb"]
+
+[ext_resource type="PackedScene" uid="uid://burcoglu8objj" path="res://scenes/deck_manager.tscn" id="1_cvm8c"]
+[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_a6jhp"]
+
+[node name="Solitaire" type="Node2D"]
+
+[node name="DeckManager" parent="." instance=ExtResource("1_cvm8c")]
+_cardScene = ExtResource("2_a6jhp")

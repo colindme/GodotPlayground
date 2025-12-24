@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://burcoglu8objj"]
+
+[ext_resource type="Script" uid="uid://dqm2lvgq6kopx" path="res://Scripts/DeckManager.cs" id="1_dorsf"]
+[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_gdl0q"]
+[ext_resource type="PackedScene" uid="uid://bjj3ig4mgx3x3" path="res://scenes/deck.tscn" id="3_kgp1l"]
+
+[node name="DeckManager" type="Node2D"]
+script = ExtResource("1_dorsf")
+_cardScene = ExtResource("2_gdl0q")
+
+[node name="Deck" parent="." instance=ExtResource("3_kgp1l")]
+position = Vector2(891, 480)

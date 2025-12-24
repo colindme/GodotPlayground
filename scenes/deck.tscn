@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://bjj3ig4mgx3x3"]
+
+[ext_resource type="Texture2D" uid="uid://34ygtsjonht1" path="res://art/DeckDepth.png" id="1_6rnap"]
+[ext_resource type="Script" uid="uid://vjyft3bwox24" path="res://Scripts/Deck.cs" id="1_gdbsr"]
+[ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="1_sdhao"]
+
+[node name="Deck" type="Node2D" node_paths=PackedStringArray("_deckDepthSprite")]
+scale = Vector2(0.65, 0.65)
+script = ExtResource("1_gdbsr")
+_deckDepthSprite = NodePath("DeckDepth")
+
+[node name="DeckDepth" type="Sprite2D" parent="."]
+position = Vector2(0, -161)
+texture = ExtResource("1_6rnap")
+
+[node name="MainCardBack" type="Sprite2D" parent="."]
+texture = ExtResource("1_sdhao")
