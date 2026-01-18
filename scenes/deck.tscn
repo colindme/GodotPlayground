@@ -32,4 +32,5 @@ position = Vector2(-2.9343828e-06, 0)
 shape = SubResource("RectangleShape2D_gdbsr")
 
 [node name="ScryPile" parent="." instance=ExtResource("4_er72m")]
-position = Vector2(0, 341.53848)
+position = Vector2(0, 500)
+ChildOffset = Vector2(0, 90)

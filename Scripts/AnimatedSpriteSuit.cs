@@ -39,7 +39,6 @@ public partial class AnimatedSpriteSuit : AnimatedSprite2D
 
 	private void OnSuitChanged(Suit suit)
 	{
-		GD.Print($"OnSuitChanged: {Name}");
 		Frame = (int)suit;
 		if (ChangeSpriteColor)
 		{

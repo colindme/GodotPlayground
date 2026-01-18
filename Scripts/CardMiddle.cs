@@ -54,7 +54,6 @@ public partial class CardMiddle : Node2D
 
 	private void OnValueChanged(int value)
 	{
-		GD.Print($"ValueChanged {value}");
 		if (CardLayouts != null)
 		{
 			if (CardLayouts.TryGetValue(value, out CardLayout layout))

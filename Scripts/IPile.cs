@@ -8,7 +8,6 @@ public interface IPile
 
     public static void Move(IPile source, IPile destination, List<CardInfo> cardInfo, bool reverseCards = false)
     {
-        GD.Print($"CardInfoLength: {cardInfo.Count}");
         if (cardInfo == null) return;
         source.RemoveFromPile(cardInfo.Count);
 

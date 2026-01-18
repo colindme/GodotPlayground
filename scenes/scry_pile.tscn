@@ -1,7 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://crjv1epm8lf77"]
+[gd_scene load_steps=3 format=3 uid="uid://crjv1epm8lf77"]
 
 [ext_resource type="Script" uid="uid://c38k4anrjkpmw" path="res://Scripts/ScryPile.cs" id="1_yjnw6"]
+[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_w0dap"]
 
-[node name="ScryPile" type="Marker2D"]
+[node name="ScryPile" type="Marker2D" node_paths=PackedStringArray("CardParent")]
 script = ExtResource("1_yjnw6")
 CardsToScry = 3
+CardScene = ExtResource("2_w0dap")
+CardParent = NodePath("CardParent")
+ChildOffset = Vector2(0, 100)
+MinCardsToShow = 3
+BaseZIndex = 1
+
+[node name="CardParent" type="Node2D" parent="."]

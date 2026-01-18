@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class Deck : Area2D, IPile
 {
@@ -23,6 +24,8 @@ public partial class Deck : Area2D, IPile
 
     LinkedList<CardInfo> IPile.Pile { get => _deck; set => _deck = value; }
 
+	private const int _fullDeckCount = 52;
+
     public override void _Ready()
 	{
 		ResetDeck();
@@ -31,7 +34,7 @@ public partial class Deck : Area2D, IPile
 
 	private void ResetDeck()
 	{
-		List<CardInfo> tempDeck = new List<CardInfo>();
+		CardInfo[] tempDeck = new CardInfo[_fullDeckCount];
 		for (Suit suit = Suit.HEART; suit <= Suit.CLUB; suit++)
 		{
 			for (int value = (int)FaceValue.ACE; value <= (int)FaceValue.KING; value++)
@@ -46,13 +49,13 @@ public partial class Deck : Area2D, IPile
 		}
 
 		// TODO: Seed this?
-		Random.Shared.Shuffle(tempDeck.ToArray());
+		Random.Shared.Shuffle(tempDeck);
 		if (_deck.Count != 0)
 		{
 			_deck.Clear();
 		}
 
-		((IPile)this).AddToPile(tempDeck);
+		((IPile)this).AddToPile(tempDeck.ToList());
 	}
 
 	public void UpdateVisuals()
