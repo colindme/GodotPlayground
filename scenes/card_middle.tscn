@@ -1,0 +1,86 @@
+[gd_scene load_steps=14 format=3 uid="uid://p4aliugwdv6a"]
+
+[ext_resource type="Script" uid="uid://daa01ykih6at4" path="res://Scripts/CardMiddle.cs" id="1_cw3uw"]
+[ext_resource type="SpriteFrames" uid="uid://bpns76qnn3adn" path="res://art/card_suits.tres" id="2_4biwa"]
+[ext_resource type="Resource" uid="uid://c1ioit87wxg8f" path="res://resources/card_layouts/face_layout.tres" id="2_yvf8l"]
+[ext_resource type="Resource" uid="uid://rfb76678r1g0" path="res://resources/card_layouts/2_layout.tres" id="3_a85hp"]
+[ext_resource type="Resource" uid="uid://qitii0n81er1" path="res://resources/card_layouts/3_layout.tres" id="4_asqsh"]
+[ext_resource type="Resource" uid="uid://bvfluw08h84ct" path="res://resources/card_layouts/4_layout.tres" id="5_vvgv2"]
+[ext_resource type="Resource" uid="uid://cp3wtswuy8d82" path="res://resources/card_layouts/5_layout.tres" id="6_4biwa"]
+[ext_resource type="Resource" uid="uid://diqkstyxl1gj1" path="res://resources/card_layouts/6_layout.tres" id="7_r6yt3"]
+[ext_resource type="Resource" uid="uid://ck3uvx458rppu" path="res://resources/card_layouts/7_layout.tres" id="8_qnrma"]
+[ext_resource type="Resource" uid="uid://btjfwat6ss7a6" path="res://resources/card_layouts/8_layout.tres" id="9_dt0hx"]
+[ext_resource type="Resource" uid="uid://d38urijc0wtfb" path="res://resources/card_layouts/9_layout.tres" id="10_185nw"]
+[ext_resource type="Resource" uid="uid://cvc0mfqr5febr" path="res://resources/card_layouts/10_layout.tres" id="11_kdjix"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="13_r6yt3"]
+
+[node name="CardMiddle" type="Node2D" node_paths=PackedStringArray("PipList")]
+script = ExtResource("1_cw3uw")
+PipList = [NodePath("Pip1"), NodePath("Pip2"), NodePath("Pip3"), NodePath("Pip4"), NodePath("Pip5"), NodePath("Pip6"), NodePath("Pip7"), NodePath("Pip8"), NodePath("Pip9"), NodePath("Pip10")]
+SpriteFramesDefault = ExtResource("2_4biwa")
+CardLayouts = Dictionary[int, Object]({
+1: ExtResource("2_yvf8l"),
+2: ExtResource("3_a85hp"),
+3: ExtResource("4_asqsh"),
+4: ExtResource("5_vvgv2"),
+5: ExtResource("6_4biwa"),
+6: ExtResource("7_r6yt3"),
+7: ExtResource("8_qnrma"),
+8: ExtResource("9_dt0hx"),
+9: ExtResource("10_185nw"),
+10: ExtResource("11_kdjix"),
+11: ExtResource("2_yvf8l"),
+12: ExtResource("2_yvf8l"),
+13: ExtResource("2_yvf8l")
+})
+FlipNegativeYPositions = true
+
+[node name="Pip1" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip2" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip3" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip4" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip5" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip6" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip7" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip8" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip9" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true
+
+[node name="Pip10" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_4biwa")
+script = ExtResource("13_r6yt3")
+ChangeSpriteColor = true

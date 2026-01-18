@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SuitsConfig" load_steps=2 format=3 uid="uid://c1gjcjolgadhf"]
+
+[ext_resource type="Script" uid="uid://15j8tsnjnbyp" path="res://Scripts/SuitsConfig.cs" id="1_6syij"]
+
+[resource]
+script = ExtResource("1_6syij")
+Suits = Dictionary[int, Color]({
+0: Color(0.8, 0.07058824, 0.07058824, 1),
+1: Color(0.8, 0.07058824, 0.07058824, 1),
+2: Color(0, 0, 0, 1),
+3: Color(0, 0, 0, 1)
+})

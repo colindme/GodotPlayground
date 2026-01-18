@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CardLayout" load_steps=2 format=3 uid="uid://diqkstyxl1gj1"]
+
+[ext_resource type="Script" uid="uid://dv5tpbr1hsbco" path="res://Scripts/CardLayout.cs" id="1_w6doq"]
+
+[resource]
+script = ExtResource("1_w6doq")
+PipPositions = [Vector2(50, 100), Vector2(50, 0), Vector2(50, -100), Vector2(-50, 100), Vector2(-50, 0), Vector2(-50, -100)]
+metadata/_custom_type_script = "uid://dv5tpbr1hsbco"

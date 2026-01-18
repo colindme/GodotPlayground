@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://crjv1epm8lf77"]
+
+[ext_resource type="Script" uid="uid://c38k4anrjkpmw" path="res://Scripts/ScryPile.cs" id="1_yjnw6"]
+
+[node name="ScryPile" type="Marker2D"]
+script = ExtResource("1_yjnw6")
+CardsToScry = 3

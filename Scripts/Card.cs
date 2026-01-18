@@ -1,51 +1,82 @@
 using Godot;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 
-public partial class Card : InteractBase
+[Tool]
+public partial class Card : SuitedBase, IDropSpot
 {
-	[Export]
-	private Godot.Collections.Array<AnimatedSprite2D> _suitSprites; 
+	[Signal]
+	public delegate void OnValueChangedEventHandler(int value);
 
 	[Export]
-	public Suit Suit 
-	{ 
-		get => _suit; 
-		set 
+	private Sprite2D FlippedOverSprite;
+
+	[Export]
+	public bool IsFlippedOver
+	{
+		get => _isFlippedOver;
+		set
 		{
-			_suit = value;
-			UpdateSuitSprite();	
+			_isFlippedOver = value;
+			if (FlippedOverSprite != null)
+			{
+				FlippedOverSprite.Visible = _isFlippedOver;
+			}
 		}
 	}
 
-	private Suit _suit;
-	private bool _held;
-	private Vector2 _heldOffset;
+	[Export]
+	private int HeldZIndex = 10;
 
-	// Called when the node enters the scene tree for the first time.
+	[ExportCategory("Drop Spot Settings")]
+	[Export]
+    public Vector2 ChildOffset { get => _childOffset; set => _childOffset = value; }
+
+	[Export(PropertyHint.Range, "1,13,")]
+	public int Value { 
+		get => _value;
+		set
+		{
+			_value = value;
+			// TODO: Consider making the deferment an editor only functionality
+			Callable.From(OnValueChangedInternal).CallDeferred();
+		}
+	}
+
+	private int _value;
+	private bool _held;
+	private bool _isFlippedOver;
+	private Vector2 _heldOffset;
+	private Vector2 _childOffset;
+
+	double test = 0;
+
 	public override void _Ready()
     {
 		InputEvent += OnInput;
-		if (_suitSprites == null || _suitSprites.Count == 0)
-		{
-			GD.PrintErr("ERROR: SuitSprites on Card must be set");
-			throw new ApplicationException("ERROR: SuitSprites on Card must be set");
-		}
-		// Although a bit unintuitive, update the suit sprite here in _Ready because the _suitSprites array is not ready when first initialized
-		UpdateSuitSprite();
     }
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		// Update held location
 		if (_held)
 		{
 			GlobalPosition = GetGlobalMousePosition() + _heldOffset;
 		}
+
+		if(!Engine.IsEditorHint())
+		{
+			//test += delta;
+			if (test > 1)
+			{
+				test = 0;
+				Suit = (Suit)((int)(_suit + 1) % 4);
+				Value = Math.Max((_value + 1) % 14, 1);
+			}
+		}
 	}
  
+	// Drop input is handled here since OnInput is only called if the mouse is hovering over the collider (which sometimes isn't the case if the collider is lagging 1 frame behind)
     public override void _Input(InputEvent @event)
     {
         if (!_held) return;
@@ -54,6 +85,22 @@ public partial class Card : InteractBase
 			if (mouseButtonEvent.ButtonIndex == MouseButton.Left && mouseButtonEvent.IsReleased())
 			{
 				_held = false;
+				Godot.Collections.Array<Area2D> overlapAreas = GetOverlappingAreas();
+				bool revertMove = true;
+				if (overlapAreas.Count != 0)
+				{
+					foreach (Area2D area in overlapAreas)
+					{
+						if (area is IDropSpot dropSpot)
+						{
+							dropSpot.TryDrop(this);
+						}
+					}
+				}
+				if (revertMove)
+				{
+					
+				}
 				GetViewport().SetInputAsHandled();
 			}
 		}
@@ -66,28 +113,25 @@ public partial class Card : InteractBase
 			{
 				_held = true;
 				_heldOffset = GlobalPosition - mouseButtonEvent.GlobalPosition;
+				ZIndex = HeldZIndex;
 				GetViewport().SetInputAsHandled();
 			}
 		}
 	}
 
-	public void UpdateSuitSprite()
+    public void TryDrop(Card droppedCard)
+    {
+        droppedCard.Reparent(this);
+		droppedCard.Position = _childOffset;
+		// Reset the ZIndex from _heldZIndex
+		droppedCard.ZIndex = 1;
+		GD.Print(droppedCard.Position);
+    }
+
+	private void OnValueChangedInternal()
 	{
-		if (_suitSprites == null) return;
-
-		foreach(AnimatedSprite2D sprite in _suitSprites)
-		{
-			sprite.Frame = (int)_suit;
-		}
+		EmitSignal(SignalName.OnValueChanged, _value);
 	}
-}
-
-public enum Suit
-{
-	HEART = 0,
-	DIAMOND,
-	SPADE,
-	CLUB
 }
 
 public enum FaceValue

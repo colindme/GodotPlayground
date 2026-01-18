@@ -37,11 +37,5 @@ public enum Zone
 	Deck,
 	Final,
 	Board,
-	PlayPile
+	Scry
 }
-
-// Solitaire
-// 52 cards, 2 -> A in all 4 suits
-// 4 Areas for stacking the cards
-// The Deck
-// 7 piles

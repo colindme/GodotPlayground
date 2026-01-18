@@ -1,30 +1,176 @@
-[gd_scene load_steps=5 format=3 uid="uid://dv5ua0n4rn750"]
+[gd_scene load_steps=11 format=3 uid="uid://dv5ua0n4rn750"]
 
 [ext_resource type="Script" uid="uid://dojrtx3bqst0g" path="res://Scripts/Card.cs" id="1_d81rb"]
 [ext_resource type="Texture2D" uid="uid://cis7u40gyywdb" path="res://art/CardBase.png" id="2_6u4wf"]
 [ext_resource type="SpriteFrames" uid="uid://bpns76qnn3adn" path="res://art/card_suits.tres" id="3_ktuci"]
+[ext_resource type="FontFile" uid="uid://cf0b2w440ql30" path="res://fonts/Vanilla Whale.otf" id="4_kg30u"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="4_sy11y"]
+[ext_resource type="Script" uid="uid://dts1vyhg6lirq" path="res://Scripts/CardLabel.cs" id="6_6ligt"]
+[ext_resource type="PackedScene" uid="uid://p4aliugwdv6a" path="res://scenes/card_middle.tscn" id="7_8w5pg"]
+[ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="8_nvopj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ktuci"]
 size = Vector2(250, 350)
 
-[node name="Card" type="Area2D" node_paths=PackedStringArray("_suitSprites")]
+[sub_resource type="Theme" id="Theme_sy11y"]
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/font_sizes/font_size = 32
+Label/fonts/font = ExtResource("4_kg30u")
+
+[node name="Card" type="Area2D" node_paths=PackedStringArray("FlippedOverSprite")]
+z_index = 1
 scale = Vector2(0.65, 0.65)
 script = ExtResource("1_d81rb")
-_suitSprites = [NodePath("SuitTL"), NodePath("SuitBR")]
-Suit = 1
+FlippedOverSprite = NodePath("CardBack")
+Value = 10
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_6u4wf")
 
-[node name="SuitTL" type="AnimatedSprite2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ktuci")
+
+[node name="SuitTL" type="AnimatedSprite2D" parent="." node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
 position = Vector2(-95, -110)
 sprite_frames = ExtResource("3_ktuci")
 animation = &"suit"
+script = ExtResource("4_sy11y")
+ChangeSpriteColor = true
+Parent = NodePath("..")
 
-[node name="SuitBR" type="AnimatedSprite2D" parent="."]
+[node name="SuitBR" type="AnimatedSprite2D" parent="." node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
 position = Vector2(95, 110)
+rotation = 3.1415927
 sprite_frames = ExtResource("3_ktuci")
 animation = &"suit"
+script = ExtResource("4_sy11y")
+ChangeSpriteColor = true
+Parent = NodePath("..")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_ktuci")
+[node name="NumTL" type="Label" parent="." node_paths=PackedStringArray("Parent")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -115.0
+offset_top = -165.0
+offset_right = -75.0
+offset_bottom = -126.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_sy11y")
+theme_override_colors/font_color = Color(0.8, 0.07058824, 0.07058824, 1)
+text = "10"
+horizontal_alignment = 1
+uppercase = true
+script = ExtResource("6_6ligt")
+Parent = NodePath("..")
+
+[node name="NumBR" type="Label" parent="." node_paths=PackedStringArray("Parent")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 115.0
+offset_top = 165.0
+offset_right = 155.0
+offset_bottom = 204.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 3.1415927
+theme = SubResource("Theme_sy11y")
+theme_override_colors/font_color = Color(0.8, 0.07058824, 0.07058824, 1)
+text = "10"
+horizontal_alignment = 1
+uppercase = true
+script = ExtResource("6_6ligt")
+Parent = NodePath("..")
+
+[node name="CardMiddle" parent="." node_paths=PackedStringArray("Parent") instance=ExtResource("7_8w5pg")]
+Parent = NodePath("..")
+FlipBottomPips = true
+
+[node name="Pip1" parent="CardMiddle" index="0" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(50, 100)
+rotation = 3.1415927
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip2" parent="CardMiddle" index="1" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(50, 37)
+rotation = 3.1415927
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip3" parent="CardMiddle" index="2" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(50, -37)
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip4" parent="CardMiddle" index="3" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(50, -100)
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip5" parent="CardMiddle" index="4" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(-50, 100)
+rotation = 3.1415927
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip6" parent="CardMiddle" index="5" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(-50, 37)
+rotation = 3.1415927
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip7" parent="CardMiddle" index="6" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(-50, -37)
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip8" parent="CardMiddle" index="7" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(-50, -100)
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip9" parent="CardMiddle" index="8" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(0, 63)
+rotation = 3.1415927
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="Pip10" parent="CardMiddle" index="9" node_paths=PackedStringArray("Parent")]
+self_modulate = Color(0.8, 0.07058824, 0.07058824, 1)
+position = Vector2(0, -63)
+scale = Vector2(1.5, 1.5)
+animation = &"suit"
+Parent = NodePath("../..")
+
+[node name="CardBack" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("8_nvopj")
+
+[editable path="CardMiddle"]

@@ -1,0 +1,31 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3 uid="uid://bg870021u3wg"]
+
+[ext_resource type="Texture2D" uid="uid://bnpxwrvhmmwe5" path="res://art/FinalSpotHeart.png" id="1_5afw7"]
+[ext_resource type="Texture2D" uid="uid://dump8itu6wo3a" path="res://art/FinalSpotDiamond.png" id="2_yujxx"]
+[ext_resource type="Texture2D" uid="uid://bws5lni750veu" path="res://art/FinalSpotSpade.png" id="3_0cihw"]
+[ext_resource type="Texture2D" uid="uid://c7ikod37soagt" path="res://art/FinalSpotClub.png" id="4_d16xm"]
+
+[resource]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5afw7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_yujxx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_0cihw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_d16xm")
+}],
+"loop": true,
+"name": &"suit",
+"speed": 5.0
+}]

@@ -1,13 +1,24 @@
-[gd_scene load_steps=4 format=3 uid="uid://bjj3ig4mgx3x3"]
+[gd_scene load_steps=7 format=3 uid="uid://bjj3ig4mgx3x3"]
 
 [ext_resource type="Texture2D" uid="uid://34ygtsjonht1" path="res://art/DeckDepth.png" id="1_6rnap"]
 [ext_resource type="Script" uid="uid://vjyft3bwox24" path="res://Scripts/Deck.cs" id="1_gdbsr"]
 [ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="1_sdhao"]
+[ext_resource type="Texture2D" uid="uid://bpfkmohobu73u" path="res://art/EmptyDeck.png" id="2_d715x"]
+[ext_resource type="PackedScene" uid="uid://crjv1epm8lf77" path="res://scenes/scry_pile.tscn" id="4_er72m"]
 
-[node name="Deck" type="Node2D" node_paths=PackedStringArray("_deckDepthSprite")]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gdbsr"]
+size = Vector2(250, 350)
+
+[node name="Deck" type="Area2D" node_paths=PackedStringArray("ScryPile", "DeckSprite", "DeckDepthSprite")]
+position = Vector2(100, 200)
 scale = Vector2(0.65, 0.65)
 script = ExtResource("1_gdbsr")
-_deckDepthSprite = NodePath("DeckDepth")
+ScryPile = NodePath("ScryPile")
+DeckSprite = NodePath("MainCardBack")
+DeckDepthSprite = NodePath("DeckDepth")
+
+[node name="EmptyDeck" type="Sprite2D" parent="."]
+texture = ExtResource("2_d715x")
 
 [node name="DeckDepth" type="Sprite2D" parent="."]
 position = Vector2(0, -161)
@@ -15,3 +26,10 @@ texture = ExtResource("1_6rnap")
 
 [node name="MainCardBack" type="Sprite2D" parent="."]
 texture = ExtResource("1_sdhao")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2.9343828e-06, 0)
+shape = SubResource("RectangleShape2D_gdbsr")
+
+[node name="ScryPile" parent="." instance=ExtResource("4_er72m")]
+position = Vector2(0, 341.53848)

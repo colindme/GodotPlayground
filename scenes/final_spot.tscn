@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://coutl4mhjsxwk"]
+
+[ext_resource type="Script" uid="uid://byhsfa71obq56" path="res://Scripts/FinalSpot.cs" id="1_nr1hy"]
+[ext_resource type="SpriteFrames" uid="uid://bg870021u3wg" path="res://art/final_spot_suits.tres" id="1_rgg5t"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="3_h48gj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nr1hy"]
+size = Vector2(250.76926, 350.7693)
+
+[node name="FinalSpot" type="Area2D"]
+scale = Vector2(0.65, 0.65)
+script = ExtResource("1_nr1hy")
+
+[node name="SpotSprite" type="AnimatedSprite2D" parent="." node_paths=PackedStringArray("Parent")]
+sprite_frames = ExtResource("1_rgg5t")
+animation = &"suit"
+script = ExtResource("3_h48gj")
+Parent = NodePath("..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0.7692281, 5.8687656e-06)
+shape = SubResource("RectangleShape2D_nr1hy")
