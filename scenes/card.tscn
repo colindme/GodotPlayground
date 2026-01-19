@@ -1,11 +1,11 @@
 [gd_scene load_steps=11 format=3 uid="uid://dv5ua0n4rn750"]
 
-[ext_resource type="Script" uid="uid://dojrtx3bqst0g" path="res://Scripts/Card.cs" id="1_d81rb"]
+[ext_resource type="Script" uid="uid://dojrtx3bqst0g" path="res://Scripts/Solitaire/Card.cs" id="1_d81rb"]
 [ext_resource type="Texture2D" uid="uid://cis7u40gyywdb" path="res://art/CardBase.png" id="2_6u4wf"]
 [ext_resource type="SpriteFrames" uid="uid://bpns76qnn3adn" path="res://art/card_suits.tres" id="3_ktuci"]
 [ext_resource type="FontFile" uid="uid://cf0b2w440ql30" path="res://fonts/Vanilla Whale.otf" id="4_kg30u"]
-[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="4_sy11y"]
-[ext_resource type="Script" uid="uid://dts1vyhg6lirq" path="res://Scripts/CardLabel.cs" id="6_6ligt"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/Solitaire/AnimatedSpriteSuit.cs" id="4_sy11y"]
+[ext_resource type="Script" uid="uid://dts1vyhg6lirq" path="res://Scripts/Solitaire/CardLabel.cs" id="6_6ligt"]
 [ext_resource type="PackedScene" uid="uid://p4aliugwdv6a" path="res://scenes/card_middle.tscn" id="7_8w5pg"]
 [ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="8_nvopj"]
 

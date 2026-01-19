@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://coutl4mhjsxwk"]
 
-[ext_resource type="Script" uid="uid://byhsfa71obq56" path="res://Scripts/FinalSpot.cs" id="1_nr1hy"]
+[ext_resource type="Script" uid="uid://byhsfa71obq56" path="res://Scripts/Solitaire/FinalSpot.cs" id="1_nr1hy"]
 [ext_resource type="SpriteFrames" uid="uid://bg870021u3wg" path="res://art/final_spot_suits.tres" id="1_rgg5t"]
-[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="3_h48gj"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/Solitaire/AnimatedSpriteSuit.cs" id="3_h48gj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nr1hy"]
 size = Vector2(250.76926, 350.7693)

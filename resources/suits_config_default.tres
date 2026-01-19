@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SuitsConfig" load_steps=2 format=3 uid="uid://c1gjcjolgadhf"]
 
-[ext_resource type="Script" uid="uid://15j8tsnjnbyp" path="res://Scripts/SuitsConfig.cs" id="1_6syij"]
+[ext_resource type="Script" uid="uid://15j8tsnjnbyp" path="res://Scripts/Solitaire/SuitsConfig.cs" id="1_6syij"]
 
 [resource]
 script = ExtResource("1_6syij")

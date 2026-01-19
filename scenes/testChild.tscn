@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://ruc8erebkl6d"]
+
+[ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="1_1pu4r"]
+[ext_resource type="Script" uid="uid://c3il6eay0wu28" path="res://scenes/TestChild.cs" id="1_3jgur"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r5arb"]
+size = Vector2(250, 349)
+
+[node name="TestChild" type="Area2D"]
+script = ExtResource("1_3jgur")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_1pu4r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_r5arb")

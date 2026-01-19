@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://p4aliugwdv6a"]
 
-[ext_resource type="Script" uid="uid://daa01ykih6at4" path="res://Scripts/CardMiddle.cs" id="1_cw3uw"]
+[ext_resource type="Script" uid="uid://daa01ykih6at4" path="res://Scripts/Solitaire/CardMiddle.cs" id="1_cw3uw"]
 [ext_resource type="SpriteFrames" uid="uid://bpns76qnn3adn" path="res://art/card_suits.tres" id="2_4biwa"]
 [ext_resource type="Resource" uid="uid://c1ioit87wxg8f" path="res://resources/card_layouts/face_layout.tres" id="2_yvf8l"]
 [ext_resource type="Resource" uid="uid://rfb76678r1g0" path="res://resources/card_layouts/2_layout.tres" id="3_a85hp"]
@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://btjfwat6ss7a6" path="res://resources/card_layouts/8_layout.tres" id="9_dt0hx"]
 [ext_resource type="Resource" uid="uid://d38urijc0wtfb" path="res://resources/card_layouts/9_layout.tres" id="10_185nw"]
 [ext_resource type="Resource" uid="uid://cvc0mfqr5febr" path="res://resources/card_layouts/10_layout.tres" id="11_kdjix"]
-[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/AnimatedSpriteSuit.cs" id="13_r6yt3"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/Solitaire/AnimatedSpriteSuit.cs" id="13_r6yt3"]
 
 [node name="CardMiddle" type="Node2D" node_paths=PackedStringArray("PipList")]
 script = ExtResource("1_cw3uw")

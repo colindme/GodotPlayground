@@ -1,64 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cehc1mb3hpnnb"]
+[gd_scene load_steps=4 format=3 uid="uid://cehc1mb3hpnnb"]
 
-[ext_resource type="PackedScene" uid="uid://burcoglu8objj" path="res://scenes/deck_manager.tscn" id="1_cvm8c"]
-[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_a6jhp"]
+[ext_resource type="PackedScene" uid="uid://bjj3ig4mgx3x3" path="res://scenes/deck.tscn" id="3_4j6hd"]
 [ext_resource type="PackedScene" uid="uid://coutl4mhjsxwk" path="res://scenes/final_spot.tscn" id="3_v4ld3"]
 [ext_resource type="PackedScene" uid="uid://dbknl8ifbdrlf" path="res://scenes/play_spot.tscn" id="4_4j6hd"]
 
 [node name="Solitaire" type="Node2D"]
-
-[node name="DeckManager" parent="." instance=ExtResource("1_cvm8c")]
-position = Vector2(-756, -339)
-
-[node name="Card" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921, 132)
-
-[node name="Card2" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(140.00002, 404)
-
-[node name="Card3" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(140.00002, 466)
-Suit = 2
-
-[node name="Card4" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(139, 536.00006)
-Suit = 3
-
-[node name="Card5" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 185.99995)
-
-[node name="Card6" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 248.99995)
-
-[node name="Card7" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 312.99997)
-
-[node name="Card8" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 376.99994)
-
-[node name="Card9" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 437.99997)
-
-[node name="Card11" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 507.99994)
-
-[node name="Card12" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 570.99994)
-
-[node name="Card13" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 634.99994)
-
-[node name="Card14" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 698.99994)
-
-[node name="Card15" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 759.99994)
-
-[node name="Card16" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 819)
-
-[node name="Card17" parent="." instance=ExtResource("2_a6jhp")]
-position = Vector2(921.0001, 880)
 
 [node name="FinalSpotHolder" type="Node2D" parent="."]
 position = Vector2(1800, 0)
@@ -101,3 +47,6 @@ position = Vector2(474.00006, 132)
 
 [node name="BoardSpot7" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
 position = Vector2(290.00006, 132)
+
+[node name="Deck" parent="." instance=ExtResource("3_4j6hd")]
+position = Vector2(125, 132)

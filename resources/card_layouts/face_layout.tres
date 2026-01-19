@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="CardLayout" load_steps=2 format=3 uid="uid://c1ioit87wxg8f"]
 
-[ext_resource type="Script" uid="uid://dv5tpbr1hsbco" path="res://Scripts/CardLayout.cs" id="1_npl71"]
+[ext_resource type="Script" uid="uid://dv5tpbr1hsbco" path="res://Scripts/Solitaire/CardLayout.cs" id="1_npl71"]
 
 [resource]
 script = ExtResource("1_npl71")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ck14am7dlp1n6"]
 
-[ext_resource type="Script" uid="uid://ctpqc82srwxvp" path="res://Scripts/Global/GlobalSuitsConfig.cs" id="1_w5cps"]
+[ext_resource type="Script" uid="uid://ctpqc82srwxvp" path="res://Scripts/Solitaire/Global/GlobalSuitsConfig.cs" id="1_w5cps"]
 [ext_resource type="Resource" uid="uid://c1gjcjolgadhf" path="res://resources/suits_config_default.tres" id="2_yumpo"]
 
 [node name="SolitaireGlobals" type="Node"]

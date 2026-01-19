@@ -11,14 +11,14 @@ config_version=5
 [application]
 
 config/name="Playground"
-run/main_scene="uid://bjj3ig4mgx3x3"
+run/main_scene="uid://cehc1mb3hpnnb"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 SolitaireGlobals="*res://scenes/solitaire_globals.tscn"
-GlobalMoveSystem="*res://Scripts/Global/GlobalMoveSystem.cs"
+GlobalMoveSystem="*res://Scripts/Solitaire/Global/GlobalMoveSystem.cs"
 
 [display]
 
