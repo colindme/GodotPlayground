@@ -5,8 +5,6 @@ namespace Solitaire
 {
 	public interface IDropSpot
 	{
-		public Vector2 ChildOffset { get; }
-
-		public void TryDrop(Card droppedCard);
+		public bool TryDrop(Card droppedCard);
 	}
 }

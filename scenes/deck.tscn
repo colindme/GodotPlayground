@@ -32,4 +32,5 @@ shape = SubResource("RectangleShape2D_gdbsr")
 
 [node name="ScryPile" parent="." instance=ExtResource("4_er72m")]
 position = Vector2(0, 500)
+CardsToScry = 1
 ChildOffset = Vector2(0, 90)

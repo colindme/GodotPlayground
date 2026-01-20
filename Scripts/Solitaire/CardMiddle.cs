@@ -27,31 +27,16 @@ namespace Solitaire
 			}
 		}
 
-		[Export]
-		private Godot.Collections.Array<AnimatedSpriteSuit> PipList;
-
-		[Export]
-		private SpriteFrames SpriteFramesDefault;
-
-		[Export]
-		private Godot.Collections.Dictionary<int, CardLayout> CardLayouts;
-
+		[Export] private Godot.Collections.Array<AnimatedSpriteSuit> PipList;
+		[Export] private SpriteFrames SpriteFramesDefault;
+		[Export] private Godot.Collections.Dictionary<int, CardLayout> CardLayouts;
 		// When there is a single sprite, what should we scale it by?
-		[Export]
-		private float SingleSpriteScale = 3;
-
+		[Export] private float SingleSpriteScale = 3;
 		// When there is multiple sprites (e.g. 2-10), what should we scale it by?
-		[Export]
-		private float MultiSpriteScale = 1.5f;
-
-		[Export]
-		private bool FlipBottomPips;
-
-		[Export]
-		private StringName AnimationNameDefault = "suit";
-
+		[Export] private float MultiSpriteScale = 1.5f;
+		[Export] private bool FlipBottomPips;
+		[Export] private StringName AnimationNameDefault = "suit";
 		private Card _parent;
-
 		private const int _maxPips = 10;
 
 		private void OnValueChanged(int value)

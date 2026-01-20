@@ -7,7 +7,6 @@ namespace Solitaire
     [GlobalClass]
     public partial class SuitsConfig : Resource
     {
-        [Export]
-        public Godot.Collections.Dictionary<Suit, Color> Suits;
+        [Export] public Godot.Collections.Dictionary<Suit, Color> Suits;
     }
 }

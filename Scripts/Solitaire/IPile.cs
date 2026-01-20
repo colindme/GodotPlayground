@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using Godot;
 namespace Solitaire
 {
     public interface IPile
     {
-        public abstract LinkedList<CardInfo> Pile { get; protected set; } 
+        public LinkedList<CardInfo> Pile { get; } 
+        public Vector2 ChildOffset { get; }
+		public Zone Zone { get; set; }
 
         public static void Move(IPile source, IPile destination, List<CardInfo> cardInfo, bool reverseCards = false)
         {
@@ -18,6 +21,31 @@ namespace Solitaire
             }
 
             destination.AddToPile(cardInfo);
+        }
+
+        public List<CardInfo> SearchUntilCard(CardInfo cardInfo)
+        {
+            List<CardInfo> cardInfos = new List<CardInfo>();
+            bool found = false;
+            LinkedListNode<CardInfo> node = Pile.First;
+            while (node != null)
+            {
+                cardInfos.Add(node.Value);
+                if (node.Value.Value == cardInfo.Value
+                    && node.Value.Suit == cardInfo.Suit)
+                {
+                    found = true;
+                    break;
+                }
+
+                node = node.Next;
+            }
+            
+            if (found)
+            {
+                return cardInfos;
+            }
+            return null;
         }
 
         public void RemoveFromPile(int count)
@@ -47,4 +75,13 @@ namespace Solitaire
 
         public void UpdateVisuals();
     }
+
+    public enum Zone
+	{
+		NONE,
+		SCRY,
+		PLAY,
+		FINAL,
+        DECK,
+	}
 }

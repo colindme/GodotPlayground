@@ -3,6 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dip0e4xn78urq" path="res://art/BoardSpot.png" id="1_twy7q"]
 
 [node name="BoardSpot" type="Node2D"]
+position = Vector2(-1, 0)
 scale = Vector2(0.65, 0.65)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

@@ -20,30 +20,19 @@ namespace Solitaire
 			}
 		}
 
-		[ExportCategory("Card Visuals Settings")]
-		[Export] 
-		private PackedScene CardScene;
-
-		[Export]
-		private Node2D CardParent;
-
-		[Export]
-		private Vector2 ChildOffset;
-
-		[Export]
-		private int MinCardsToShow;
-
-		[Export]
-		private int BaseZIndex;
-
+        public Zone Zone { get => Zone.SCRY; set {} }
+		private LinkedList<CardInfo> _pile = new LinkedList<CardInfo>();
+        public LinkedList<CardInfo> Pile { get => _pile; set => _pile = value; }
+        [ExportCategory("Card Visuals Settings")]
+		[Export] private PackedScene CardScene;
+		[Export] private Node2D CardParent;
+		[Export] public Vector2 ChildOffset { get; set; }
+		[Export] private int MinCardsToShow;
+		[Export] private int BaseZIndex;
 		private int _cardsToScry;
 		private int _cardsToShow;
 
-		// First most card in the pile is the most recent, back is oldest
-		private LinkedList<CardInfo> _pile = new LinkedList<CardInfo>();
-
-		LinkedList<CardInfo> IPile.Pile { get => _pile; set => _pile = value; }
-		List<Card> _visualCards = new List<Card>();
+        List<Card> _visualCards = new List<Card>();
 
 		public List<CardInfo> GetPile()
 		{
@@ -71,6 +60,7 @@ namespace Solitaire
 				_visualCards[i].Scale = Vector2.One;
 				_visualCards[i].IsDraggable = false;
 			}
+
 			// Make sure the others are invisible
 			for (int i = cardsToShow; i < _visualCards.Count; i++)
 			{
@@ -111,8 +101,9 @@ namespace Solitaire
 				{
 					Card c = CardScene.Instantiate<Card>();
 					c.CancelMove = UpdateVisuals;
+					c.Zone = Zone.SCRY;
+					c.PileParent = this;
 					_visualCards.Add(c);
-					GD.Print("Added new card");
 				}
 			}
 			else if (_visualCards.Count > _cardsToShow)
@@ -123,11 +114,10 @@ namespace Solitaire
 				{
 					_visualCards[_cardsToShow].QueueFree();
 					_visualCards.RemoveAt(_cardsToShow);
-					GD.Print("Removed card");
 				}
 			}
 
 			UpdateVisuals();
 		}
-	}
+    }
 }

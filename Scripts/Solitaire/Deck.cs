@@ -7,26 +7,18 @@ namespace Solitaire
 {
 	public partial class Deck : Area2D, IPile
 	{
-		[Export]
-		private ScryPile ScryPile;
-
-		[Export]
-		private Sprite2D DeckSprite;
-
+		[Export] private ScryPile ScryPile;
+		[Export] private Sprite2D DeckSprite;
+		
 		[ExportCategory("Deck Depth Settings")]
-		[Export]
-		private Sprite2D DeckDepthSprite;
-
-		[Export]
-		private float DeckDepthCardScalar = 0.02f;
-
+		[Export] private Sprite2D DeckDepthSprite;
+		[Export] private float DeckDepthCardScalar = 0.02f;
 		private LinkedList<CardInfo> _deck = new LinkedList<CardInfo>();
-
 		private bool _mouseHeld = false;
-
-		LinkedList<CardInfo> IPile.Pile { get => _deck; set => _deck = value; }
-
-		private const int _fullDeckCount = 52;
+		public LinkedList<CardInfo> Pile { get => _deck; set => _deck = value; }
+        public Vector2 ChildOffset { get => Vector2.Zero; }
+        public Zone Zone { get => Zone.DECK; set {} }
+        private const int _fullDeckCount = 52;
 
 		public override void _Ready()
 		{
@@ -82,7 +74,6 @@ namespace Solitaire
 						if (_deck.Count == 0)
 						{
 							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move();
-							move.MoveType = GlobalMoveSystem.MoveType.SCRY_TO_DECK;
 							move.CardInfoList = ScryPile.GetPile();
 							move.Source = ScryPile;
 							move.Destination = this;
@@ -93,7 +84,6 @@ namespace Solitaire
 						else
 						{
 							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move();
-							move.MoveType = GlobalMoveSystem.MoveType.DECK_TO_SCRY;
 							move.Source = this;
 							move.Destination = ScryPile;
 							move.ReverseOnUndo = true;

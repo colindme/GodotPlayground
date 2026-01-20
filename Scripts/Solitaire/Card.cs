@@ -1,18 +1,14 @@
 using Godot;
+using Godot.Collections;
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace Solitaire
 {
 	[Tool]
 	public partial class Card : SuitedBase, IDropSpot
 	{
-		[Signal]
-		public delegate void OnValueChangedEventHandler(int value);
-
-		[Export]
-		private Sprite2D FlippedOverSprite;
-
+		[Signal] public delegate void OnValueChangedEventHandler(int value);
+		[Export] private Sprite2D FlippedOverSprite;
 		[Export]
 		public bool IsFlippedOver
 		{
@@ -27,13 +23,9 @@ namespace Solitaire
 			}
 		}
 
-		[Export]
-		private int HeldZIndex = 10;
-
+		[Export] private int HeldZIndex = 10;
 		[ExportCategory("Drop Spot Settings")]
-		[Export]
-		public Vector2 ChildOffset { get => _childOffset; set => _childOffset = value; }
-
+		[Export] public Vector2 ChildOffset { get => _childOffset; set => _childOffset = value; }
 		[Export(PropertyHint.Range, "1,13,")]
 		public int Value { 
 			get => _value;
@@ -46,18 +38,20 @@ namespace Solitaire
 		}
 
 		public bool IsDraggable { get; set; } = true;
-
+        public Zone Zone { get; set; } = Zone.NONE;
+		public IPile PileParent { get; set; }
 		public Action CancelMove;
-
 		private int _value;
 		private bool _held;
 		private bool _isFlippedOver;
 		private Vector2 _heldOffset;
 		private Vector2 _childOffset;
+		private GlobalMoveSystem.Move _tempMove;
 
 		public override void _Ready()
 		{
 			InputEvent += OnInput;
+			_tempMove = null;
 		}
 
 		public override void _Process(double delta)
@@ -78,26 +72,37 @@ namespace Solitaire
 				if (mouseButtonEvent.ButtonIndex == MouseButton.Left && mouseButtonEvent.IsReleased())
 				{
 					_held = false;
-					Godot.Collections.Array<Area2D> overlapAreas = GetOverlappingAreas();
 					bool revertMove = true;
-					/*
-					Next up: completing the move.
-					Step 1: Detecting the move type to attempt to make
-					if (overlapAreas.Count != 0)
-					{
-						foreach (Area2D area in overlapAreas)
+					Array<Dictionary> objectsUnderClick = GetWorld2D().DirectSpaceState.IntersectPoint(
+						new PhysicsPointQueryParameters2D()
 						{
-							if (area is IDropSpot dropSpot)
+							Position = GetViewport().GetMousePosition(),
+							CollideWithAreas = true,
+							Exclude = [GetRid()]
+						}
+					);
+
+					foreach(Dictionary obj in objectsUnderClick)
+					{
+						if (obj.TryGetValue("collider", out Variant vCollider))
+						{
+							if (vCollider.AsGodotObject() is Area2D area && 
+								area is IDropSpot dropSpot)
 							{
-								dropSpot.TryDrop(this);
+								if (dropSpot.TryDrop(this))
+								{
+									revertMove = false;
+									break;
+								}
 							}
 						}
 					}
-					*/
+
 					if (revertMove)
 					{
 						CancelMove();
 					}
+					
 					GetViewport().SetInputAsHandled();
 				}
 			}
@@ -109,39 +114,44 @@ namespace Solitaire
 			{
 				if (mouseButtonEvent.ButtonIndex == MouseButton.Left && mouseButtonEvent.Pressed)
 				{
-					GD.Print($"Card Clicked: {Value} | {Suit}");
 					if (IsDraggable)
 					{
-						GD.Print($"Card held: {Value} | {Suit}");
 						_held = true;
 						_heldOffset = GlobalPosition - mouseButtonEvent.GlobalPosition;
 						ZIndex = HeldZIndex;
 						GetViewport().SetInputAsHandled();
 					}
-					else
-					{
-						GD.Print($"Card Not Draggable: {Value} | {Suit}");
-					}
 				}
 			}
 		}
 
-		public void TryDrop(Card droppedCard)
+		public bool TryDrop(Card droppedCard)
 		{
-			droppedCard.Reparent(this);
-			droppedCard.Position = _childOffset;
-			// Reset the ZIndex from _heldZIndex
-			droppedCard.ZIndex = 1;
-			GD.Print(droppedCard.Position);
-		}
+			bool success = false;
+            switch (Zone)
+            {
+                case Zone.NONE:
+                case Zone.SCRY:
+					GD.Print($"Tried to drop on card with zone {Zone} | Returning false");
+                    break;
+                case Zone.PLAY:
+					// 
+                    break;
+                case Zone.FINAL:
+					// Implement final first
+                    break;					
+            }
 
-		private void OnValueChangedInternal()
+            return success;
+        }
+
+        private void OnValueChangedInternal()
 		{
 			EmitSignal(SignalName.OnValueChanged, _value);
 		}
-	}
+    }
 
-	public enum FaceValue
+    public enum FaceValue
 	{
 		ACE = 1,
 		JACK = 11,

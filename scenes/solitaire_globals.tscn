@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://ck14am7dlp1n6"]
+[gd_scene load_steps=4 format=3 uid="uid://ck14am7dlp1n6"]
 
+[ext_resource type="Script" uid="uid://dsi08hure63r0" path="res://Scripts/Solitaire/Global/SolitaireGlobals.cs" id="1_t230f"]
 [ext_resource type="Script" uid="uid://ctpqc82srwxvp" path="res://Scripts/Solitaire/Global/GlobalSuitsConfig.cs" id="1_w5cps"]
 [ext_resource type="Resource" uid="uid://c1gjcjolgadhf" path="res://resources/suits_config_default.tres" id="2_yumpo"]
 
 [node name="SolitaireGlobals" type="Node"]
+script = ExtResource("1_t230f")
 
 [node name="SuitsConfig" type="Node" parent="."]
 script = ExtResource("1_w5cps")

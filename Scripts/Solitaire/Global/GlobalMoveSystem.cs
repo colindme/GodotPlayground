@@ -69,23 +69,10 @@ namespace Solitaire
 
 		public class Move
 		{
-			public MoveType MoveType;
 			public List<CardInfo> CardInfoList;
 			public IPile Source;
 			public IPile Destination;
 			public bool ReverseOnUndo;
-		}
-
-		// Mostly for debug purposes
-		public enum MoveType
-		{
-			DECK_TO_SCRY,
-			SCRY_TO_DECK,
-			SCRY_TO_PLAY,
-			PLAY_TO_PLAY,
-			PLAY_TO_FINAL,
-			FINAL_TO_PLAY,
-			SCRY_TO_FINAL
 		}
 	}
 }

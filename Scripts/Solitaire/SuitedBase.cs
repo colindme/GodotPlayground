@@ -4,8 +4,7 @@ namespace Solitaire
 {
 	public abstract partial class SuitedBase : Area2D
 	{
-		[Signal]
-		public delegate void OnSuitChangedEventHandler(Suit suit);
+		[Signal] public delegate void OnSuitChangedEventHandler(Suit suit);
 
 		[Export]
 		public Suit Suit 
