@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://cgaibn13nc7r3"]
+
+[ext_resource type="Script" uid="uid://cod25gv2pvp7w" path="res://Scripts/Solitaire/NewDeck.cs" id="1_87v5j"]
+[ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="2_46df7"]
+[ext_resource type="Texture2D" uid="uid://bpfkmohobu73u" path="res://art/EmptyDeck.png" id="3_j3tjl"]
+[ext_resource type="Texture2D" uid="uid://34ygtsjonht1" path="res://art/DeckDepth.png" id="4_fg020"]
+[ext_resource type="Texture2D" uid="uid://1xhmxqe1c3r3" path="res://art/Spade.png" id="5_fg020"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_46df7"]
+size = Vector2(250, 350)
+
+[node name="NewDeck" type="Node2D" node_paths=PackedStringArray("TestingNode", "PlaySpots", "DeckArea", "DeckSprite", "DeckDepthSprite")]
+script = ExtResource("1_87v5j")
+TestingNode = NodePath("TestingSprite")
+PlaySpots = []
+DeckArea = NodePath("DeckArea")
+DeckSprite = NodePath("MainCardBack")
+DeckDepthSprite = NodePath("DeckDepth")
+Zone = 4
+metadata/_custom_type_script = "uid://cod25gv2pvp7w"
+
+[node name="EmptyDeck" type="Sprite2D" parent="."]
+texture = ExtResource("3_j3tjl")
+
+[node name="DeckDepth" type="Sprite2D" parent="."]
+position = Vector2(0, -161)
+texture = ExtResource("4_fg020")
+
+[node name="MainCardBack" type="Sprite2D" parent="."]
+texture = ExtResource("2_46df7")
+
+[node name="DeckArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DeckArea"]
+shape = SubResource("RectangleShape2D_46df7")
+
+[node name="TestingSprite" type="Sprite2D" parent="."]
+texture = ExtResource("5_fg020")

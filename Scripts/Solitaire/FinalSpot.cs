@@ -4,8 +4,9 @@ using Godot;
 namespace Solitaire
 {
     [Tool]
-    public partial class FinalSpot : SuitedBase, IDropSpot, IPile
+    public partial class FinalSpot : SuitedBase//, IDropSpot, IPile
     {
+        /*
         [Export] public Vector2 ChildOffset { get; set;}   
         public Zone Zone { get => Zone.FINAL; set {} }
         public LinkedList<CardInfo> Pile => _pile;
@@ -30,12 +31,13 @@ namespace Solitaire
                     Source = droppedCard.PileParent,
                     Destination = this,
                     ReverseOnUndo = false,
-                    CardInfoList = cardInfo
+                    CardList = cardInfo
                 };
 
                 GlobalMoveSystem.Instance.ExecuteMove(move);
                 return true;
             }
+
             return false;
         }
 
@@ -48,6 +50,7 @@ namespace Solitaire
                 GD.Print($"Value: {node.Value.Value}");
                 node = node.Next;
             }
+            
             if (_pile.Count == 0)
             {
                 
@@ -69,5 +72,6 @@ namespace Solitaire
                 return Pile.First.Value.Value + 1;
             }
         }
+        */
     }
 }

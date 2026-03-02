@@ -9,10 +9,11 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gdbsr"]
 size = Vector2(250, 350)
 
-[node name="Deck" type="Area2D" node_paths=PackedStringArray("ScryPile", "DeckSprite", "DeckDepthSprite")]
+[node name="Deck" type="Area2D" node_paths=PackedStringArray("ScryPile", "PlaySpots", "DeckSprite", "DeckDepthSprite")]
 scale = Vector2(0.65, 0.65)
 script = ExtResource("1_gdbsr")
 ScryPile = NodePath("ScryPile")
+PlaySpots = []
 DeckSprite = NodePath("MainCardBack")
 DeckDepthSprite = NodePath("DeckDepth")
 

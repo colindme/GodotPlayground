@@ -7,12 +7,13 @@ namespace Solitaire
 	{
 		public static SolitaireGlobals Instance { get; private set; }
 
+		public Card CurrentlyHeldCard { get; set; }
+
         public override void _Ready()
         {
            	Instance = this;
 			GetViewport().PhysicsObjectPickingSort = true;
 			GetViewport().PhysicsObjectPickingFirstOnly = true;
         }
-
 	}
 }

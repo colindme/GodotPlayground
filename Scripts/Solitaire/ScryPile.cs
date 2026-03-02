@@ -5,8 +5,9 @@ using System.Linq;
 
 namespace Solitaire
 {
-	public partial class ScryPile : Marker2D, IPile
+	public partial class ScryPile : Marker2D//, IPile
 	{
+		/*
 		[Export]
 		public int CardsToScry
 		{
@@ -119,5 +120,6 @@ namespace Solitaire
 
 			UpdateVisuals();
 		}
+		*/
     }
 }

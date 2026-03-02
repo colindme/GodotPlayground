@@ -1,52 +1,58 @@
-[gd_scene load_steps=4 format=3 uid="uid://cehc1mb3hpnnb"]
+[gd_scene load_steps=6 format=3 uid="uid://cehc1mb3hpnnb"]
 
-[ext_resource type="PackedScene" uid="uid://bjj3ig4mgx3x3" path="res://scenes/deck.tscn" id="3_4j6hd"]
-[ext_resource type="PackedScene" uid="uid://coutl4mhjsxwk" path="res://scenes/final_spot.tscn" id="3_v4ld3"]
-[ext_resource type="PackedScene" uid="uid://dbknl8ifbdrlf" path="res://scenes/play_spot.tscn" id="4_4j6hd"]
+[ext_resource type="PackedScene" uid="uid://coutl4mhjsxwk" path="res://scenes/final_spot.tscn" id="1_0hr13"]
+[ext_resource type="Script" uid="uid://mjb44shq7h6" path="res://Scripts/Solitaire/Solitaire.cs" id="1_t0fxo"]
+[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_mevcl"]
+[ext_resource type="PackedScene" uid="uid://dbknl8ifbdrlf" path="res://scenes/play_spot.tscn" id="2_t0fxo"]
+[ext_resource type="PackedScene" uid="uid://bjj3ig4mgx3x3" path="res://scenes/deck.tscn" id="3_mevcl"]
 
-[node name="Solitaire" type="Node2D"]
+[node name="Solitaire" type="Node2D" node_paths=PackedStringArray("_deck", "_playSpots")]
+script = ExtResource("1_t0fxo")
+_deck = NodePath("Deck")
+_playSpots = [NodePath("PlaySpotHolder/PlaySpot"), NodePath("PlaySpotHolder/PlaySpot2"), NodePath("PlaySpotHolder/PlaySpot3"), NodePath("PlaySpotHolder/PlaySpot4"), NodePath("PlaySpotHolder/PlaySpot5"), NodePath("PlaySpotHolder/PlaySpot6"), NodePath("PlaySpotHolder/PlaySpot7")]
+_cardScene = ExtResource("2_mevcl")
 
 [node name="FinalSpotHolder" type="Node2D" parent="."]
 position = Vector2(1800, 0)
 
-[node name="FinalSpot" parent="FinalSpotHolder" instance=ExtResource("3_v4ld3")]
+[node name="FinalSpot" parent="FinalSpotHolder" instance=ExtResource("1_0hr13")]
 position = Vector2(0, 851)
 Suit = 3
 
-[node name="FinalSpot2" parent="FinalSpotHolder" instance=ExtResource("3_v4ld3")]
+[node name="FinalSpot2" parent="FinalSpotHolder" instance=ExtResource("1_0hr13")]
 position = Vector2(0, 369)
 Suit = 1
 
-[node name="FinalSpot3" parent="FinalSpotHolder" instance=ExtResource("3_v4ld3")]
+[node name="FinalSpot3" parent="FinalSpotHolder" instance=ExtResource("1_0hr13")]
 position = Vector2(0, 610)
 Suit = 2
 
-[node name="FinalSpot4" parent="FinalSpotHolder" instance=ExtResource("3_v4ld3")]
+[node name="FinalSpot4" parent="FinalSpotHolder" instance=ExtResource("1_0hr13")]
 position = Vector2(0, 128)
 
 [node name="PlaySpotHolder" type="Node2D" parent="."]
-position = Vector2(71, 0)
+position = Vector2(370, 132)
 
-[node name="BoardSpot" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(1459, 132)
+[node name="PlaySpot" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
 
-[node name="BoardSpot2" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(1258, 132)
+[node name="PlaySpot2" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(200, 0)
 
-[node name="BoardSpot3" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(1042, 132)
+[node name="PlaySpot3" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(400, 0)
 
-[node name="BoardSpot4" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(851, 132)
+[node name="PlaySpot4" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(600, 0)
 
-[node name="BoardSpot5" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(659, 132)
+[node name="PlaySpot5" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(800, 0)
 
-[node name="BoardSpot6" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(474.00006, 132)
+[node name="PlaySpot6" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(1000, 0)
 
-[node name="BoardSpot7" parent="PlaySpotHolder" instance=ExtResource("4_4j6hd")]
-position = Vector2(290.00006, 132)
+[node name="PlaySpot7" parent="PlaySpotHolder" instance=ExtResource("2_t0fxo")]
+position = Vector2(1200, 0)
 
-[node name="Deck" parent="." instance=ExtResource("3_4j6hd")]
+[node name="Deck" parent="." node_paths=PackedStringArray("PlaySpots") instance=ExtResource("3_mevcl")]
 position = Vector2(125, 132)
+PlaySpots = [null, null, null, null, null, null, null]

@@ -5,9 +5,11 @@ using System.Linq;
 
 namespace Solitaire
 {
-	public partial class Deck : Area2D, IPile
+	public partial class Deck : Area2D//, IPile
 	{
+		/*
 		[Export] private ScryPile ScryPile;
+		[Export] private Godot.Collections.Array<PlaySpot> PlaySpots;
 		[Export] private Sprite2D DeckSprite;
 		
 		[ExportCategory("Deck Depth Settings")]
@@ -22,11 +24,10 @@ namespace Solitaire
 
 		public override void _Ready()
 		{
-			ResetDeck();
 			InputEvent += OnInput;
 		}
 
-		private void ResetDeck()
+		public void ResetDeck()
 		{
 			CardInfo[] tempDeck = new CardInfo[_fullDeckCount];
 			for (Suit suit = Suit.HEART; suit <= Suit.CLUB; suit++)
@@ -74,7 +75,7 @@ namespace Solitaire
 						if (_deck.Count == 0)
 						{
 							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move();
-							move.CardInfoList = ScryPile.GetPile();
+							move.CardList = ScryPile.GetPile();
 							move.Source = ScryPile;
 							move.Destination = this;
 							move.ReverseOnUndo = true;
@@ -96,7 +97,7 @@ namespace Solitaire
 								currNode = currNode == null ? _deck.First : currNode.Next;
 								cards.Add(currNode.Value);
 							}
-							move.CardInfoList = cards;
+							move.CardList = cards;
 
 							GlobalMoveSystem.Instance.ExecuteMove(move);
 						}
@@ -132,11 +133,14 @@ namespace Solitaire
 			_mouseHeld = false;
 			GetViewport().SetInputAsHandled();
 		}
+	*/
 	}
 
+	/*
 	public struct CardInfo
 	{
 		public Suit Suit { get; set; }
 		public int Value { get; set; }
 	}
+	*/
 }

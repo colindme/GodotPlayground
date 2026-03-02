@@ -32,7 +32,6 @@ namespace Solitaire
 			set
 			{
 				_value = value;
-				// TODO: Consider making the deferment an editor only functionality
 				Callable.From(OnValueChangedInternal).CallDeferred();
 			}
 		}
@@ -128,19 +127,10 @@ namespace Solitaire
 		public bool TryDrop(Card droppedCard)
 		{
 			bool success = false;
-            switch (Zone)
-            {
-                case Zone.NONE:
-                case Zone.SCRY:
-					GD.Print($"Tried to drop on card with zone {Zone} | Returning false");
-                    break;
-                case Zone.PLAY:
-					// 
-                    break;
-                case Zone.FINAL:
-					// Implement final first
-                    break;					
-            }
+			if (PileParent != null && PileParent is IDropSpot dropSpot)
+			{
+				success = dropSpot.TryDrop(droppedCard);
+			}
 
             return success;
         }
