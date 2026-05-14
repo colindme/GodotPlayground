@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://brdc6gu7q80o3"]
+
+[ext_resource type="Script" uid="uid://b2twv0v2gwvkc" path="res://Scripts/Testing.cs" id="1_pcu7d"]
+[ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="1_ryjsw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pcu7d"]
+size = Vector2(250, 351)
+
+[node name="Testing" type="Node2D" node_paths=PackedStringArray("area2D", "sprite2D")]
+script = ExtResource("1_pcu7d")
+area2D = NodePath("Area2D")
+sprite2D = NodePath("TestingSprite")
+
+[node name="TestingSprite" type="Sprite2D" parent="."]
+texture = ExtResource("1_ryjsw")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_pcu7d")

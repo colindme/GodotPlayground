@@ -16,19 +16,21 @@ namespace Solitaire
 		
 		private Stack<Move> PreviousMovePile;
 		private Stack<Move> RedoMovePile;
+		private MoveAnimationManager AnimationManager;
 
 		public override void _Ready()
 		{
 			Instance = this;
 			PreviousMovePile = new Stack<Move>();
 			RedoMovePile = new Stack<Move>();
-
+			AnimationManager = new MoveAnimationManager();
 		}
 
 		public void ExecuteMove(Move move)
 		{
 			List<TweenInfo> animationTweenInfo = move.Destination.CreateTweenInfoForMove(move.Source, move.CardList);
-			MoveAnimation moveAnimation = new MoveAnimation(animationTweenInfo);
+			List<StateChange> animationOnStartStateChange = move.Destination.CreateStateChangeForMove(move.CardList);
+			MoveAnimation moveAnimation = new MoveAnimation(animationTweenInfo, animationOnStartStateChange);
 			move.Animation = moveAnimation;
 
 			Pile.Move(move.Source, move.Destination, move.CardList);
@@ -79,92 +81,271 @@ namespace Solitaire
 			public MoveAnimation Animation { get; set; }
 		}
 
-		// TODO: What happens if one MoveAnimation interrupts another MoveAnimation?
+		private class MoveAnimationManager
+		{
+			private Dictionary<int, MoveAnimation> _activeTweenDictionary;
+
+			public MoveAnimationManager()
+			{
+				_activeTweenDictionary = new Dictionary<int, MoveAnimation>();
+			}
+
+			public void PlayAnimationFromStart(MoveAnimation move)
+			{
+				// See if any of the new tweens are currently being tweened by another move
+				foreach (TweenInfo info in move.TweenInfos)
+				{
+					int hashCode = info.GetHashCode();
+					if (_activeTweenDictionary.TryGetValue(hashCode, out MoveAnimation animation))
+					{
+						if (animation != null)
+						{
+							// Kill the current animation (considering it as done!)
+							animation.KillTween(info, true);
+						}
+					}
+
+					_activeTweenDictionary[hashCode] = move;
+				}
+
+				move.PlayFromStart();
+			}
+
+			public void ReverseAnimation(MoveAnimation move)
+			{
+				foreach (TweenInfo info in move.TweenInfos)
+				{
+					int hashCode = info.GetHashCode();
+					if (_activeTweenDictionary.TryGetValue(hashCode, out MoveAnimation animation)
+						&& animation != null
+						&& animation != move)
+					{
+						animation.KillTween(info, true);
+					}
+				}
+				move.Reverse();
+			}
+
+			public void RemoveMoveInfoForAnimation(MoveAnimation move)
+			{
+				foreach (TweenInfo info in move.TweenInfos)
+				{
+					int hashCode = info.GetHashCode();
+					if (_activeTweenDictionary.TryGetValue(hashCode, out MoveAnimation dictMove))
+					{
+						if (dictMove == null || dictMove == move)
+						{
+							_activeTweenDictionary.Remove(hashCode);
+						}
+					}
+				}
+			}
+		}
+
 		public class MoveAnimation
 		{
 			public bool Finished { get; private set; }
 			public bool InReverse { get; private set; }
+			public List<TweenInfo> TweenInfos { get => _tweenInfos; }
 			private int _completedTweens = 0;
 			private double _longestDuration = 0;
-			private Dictionary<int, TweenInfo> _tweenDictionary;
+			private double _animStartTime;
+			private List<TweenInfo> _tweenInfos;
+			private List<StateChange> _onStartStateChanges;
 
 			private MoveAnimation() { }
 
-			public MoveAnimation(List<TweenInfo> tweenInfo)
+			public MoveAnimation(List<TweenInfo> tweenInfos, List<StateChange> onStartStateChanges)
 			{
-				_tweenDictionary = new Dictionary<int, TweenInfo>();
-				foreach (TweenInfo info in tweenInfo)
+				_tweenInfos = tweenInfos;
+				_onStartStateChanges = onStartStateChanges;
+				foreach (TweenInfo info in tweenInfos)
 				{
-					CreateTween(info);
-					if (info.Duration > _longestDuration)
+					if (info.FullDuration > _longestDuration)
 					{
-						_longestDuration = info.Duration;
+						_longestDuration = info.FullDuration;
+					}
+				}
+
+				// Add a delay at the end of MoveAnimation for any tweens who don't have the longest duration
+				foreach (TweenInfo info in tweenInfos)
+				{
+					if (_longestDuration > info.FullDuration)
+					{
+						GD.Print($"Creating end delay for {info} | {_longestDuration - info.FullDuration}s");
+						info.TweenActions.Add(new ActionDelay(_longestDuration - info.FullDuration));
 					}
 				}
 			}
 
+			public void PlayFromStart()
+			{
+				Finished = false;
+				foreach (StateChange change in _onStartStateChanges)
+				{
+					if (IsInstanceValid(change.Node))
+					{
+						change.Node.Set(change.Property, change.EndVariant);
+					}
+				}
+
+				foreach (TweenInfo info in _tweenInfos)
+				{
+					CreateTweenFromAction(info);
+				}
+
+				_animStartTime = (double)Time.GetTicksMsec() / 1_000;
+			}
+
+			// ISSUE: when spamming reverse, the anim speeds up because currentActionStartTime gets so small
+			// Calc progress?
+			// now - start time
 			public void Reverse()
 			{
-				// For now, only support reversing a finished anim
-				if (!Finished) return;
-				Finished = false;
-
+				GD.PrintErr("In Reverse");
 				InReverse = !InReverse;
 				_completedTweens = 0;
-				foreach (TweenInfo info in _tweenDictionary.Values)
+				foreach (StateChange change in _onStartStateChanges)
 				{
-					double delay = _longestDuration - info.Duration;
-					if (delay != 0)
+					if (IsInstanceValid(change.Node))
 					{
-						// TODO Add a cancellable timer (because it will be interruptable in the future!)
-						SceneTreeTimer timer = info.Node.GetTree().CreateTimer(delay, false);
-						GD.Print($"Delaying for {delay} for {info.Node.Name} | Property: {info.Property}");
-						timer.Timeout += () => CreateTween(info);
-						timer.Timeout += () => GD.Print($"Timer finished for {info.Node.Name} | Property: {info.Property}");
+						change.Node.Set(change.Property, InReverse ? change.StartVariant : change.EndVariant);
 					}
-					else
+				}
+
+				// TODO: Add logs here to debug this
+				double timeSinceAnimStart = ((double)Time.GetTicksMsec() / 1_000) - _animStartTime;
+				foreach (TweenInfo info in _tweenInfos)
+				{
+					GD.Print($"currentAction: {info.CurrentAction}");
+					if (!IsInstanceValid(info.Node))
 					{
-						GD.Print($"Not delaying for {info.Node.Name} | Property: {info.Property}");
-						CreateTween(info);
+						_completedTweens++;
+						continue;
 					}
+
+					double? timeSinceCurrentTweenActionStart = null;
+					if (info.CurrentAction != null)
+					{
+						double test = ((double)Time.GetTicksMsec() / 1_000) - info.CurrentActionStartTimeSec;
+						GD.PrintErr($"Got diff of: {test} | Full Duration {info.CurrentAction.Duration}");
+						timeSinceCurrentTweenActionStart = Math.Min(test, info.CurrentAction.Duration);
+						GD.Print($"Calculated a time since current action start of: {timeSinceCurrentTweenActionStart} for {info}");
+					}
+
+					CreateTweenFromAction(info, info.CurrentAction, timeSinceCurrentTweenActionStart);
+				}
+
+				Finished = false;
+				CheckAnimationCompletion();
+			}
+
+			private void CreateTweenFromAction(TweenInfo info, TweenAction customStartAction = null, double? customStartDuration = null)
+			{
+				if (!IsInstanceValid(info.Node)) return; 
+
+				KillTween(info);
+				Tween tween = info.Node.CreateTween();
+
+				List<TweenAction> actions = info.TweenActions;
+				if (InReverse)
+				{
+					actions.Reverse();
+				}
+				
+				GD.Print("ACTIONS");
+				foreach (TweenAction action in actions)
+				{
+					GD.Print(action);
+				}
+				GD.Print("TWEEN ACTIONS ORDER");
+				foreach (TweenAction action in info.TweenActions)
+				{
+					GD.Print(action);
+				}
+
+				GD.Print($"In CreateTweenFromAction for {info}");
+				bool foundCustomStartAction = false;
+				foreach (TweenAction action in actions)
+				{
+					double duration = action.Duration;
+					if (customStartAction != null && !foundCustomStartAction)
+					{
+						if (action == customStartAction)
+						{
+							GD.Print($"Found custom start action: {customStartAction}");
+							foundCustomStartAction = true;
+							if (customStartDuration.HasValue)
+							{
+								duration = customStartDuration.Value;
+							}
+						}
+						else
+						{
+							GD.Print($"Skipping action {action} because it was before custom start action: {customStartAction}");
+							continue;
+						}
+					}
+
+					GD.Print($"Creating set current action call for {action}");
+					tween.TweenCallback(Callable.From(() => info.SetCurrentAction(action)));
+					if (action is ActionDelay)
+					{
+						GD.Print($"Creating action delay for {action}");
+						tween.TweenInterval(duration);
+					}
+					else if (action is ActionActive actionActive)
+					{
+						GD.Print($"Creating action active for {action}");
+						tween.TweenProperty(info.Node, info.Property, InReverse ? actionActive.StateChange.StartVariant : actionActive.StateChange.EndVariant, duration);
+					}
+					// TODO: Log this
+				}
+
+				tween.TweenCallback(Callable.From(OnTweenFinish));
+				info.ActiveTween = tween;
+			}
+
+			public void KillTween(TweenInfo info, bool considerTweenAsComplete = false)
+			{
+				if (info.ActiveTween != null && info.ActiveTween.IsRunning())
+				{
+					GD.PrintErr($"CreateTween called while tween is currently running. Name: {info.Node.Name} | Property: {info.Property}");
+					info.ActiveTween.Kill();
+					info.ActiveTween = null;
+
+					if (considerTweenAsComplete)
+					{
+						_completedTweens++;
+						CheckAnimationCompletion();
+					}
+				}
+				else
+				{
+					GD.PrintErr($"CreateTween called while tween is NOTNOTNOTNOT running. Name: {info.Node.Name} | Property: {info.Property}");
 				}
 			}
 
-			private void OnTweenFinish(int infoHashCode)
+			private void OnTweenFinish()
 			{
-				TweenInfo info = _tweenDictionary[infoHashCode];
 				_completedTweens++;
-				ulong timeDiff = Time.GetTicksMsec() - info.StartTimeTicks;
-				GD.Print($"OnTweenFinish | CompletedTweens: {_completedTweens} | Time Diff: {timeDiff}");
-				
-				if (_completedTweens == _tweenDictionary.Keys.Count)
+				CheckAnimationCompletion();
+			}
+
+			private void CheckAnimationCompletion()
+			{
+				if (_completedTweens == _tweenInfos.Count)
 				{
 					OnAnimationFinish();
 				}
-			}
-
-			private void CreateTween(TweenInfo info)
-			{
-				Tween tween = info.Node.CreateTween();
-				tween.TweenProperty(info.Node, info.Property, InReverse ? info.StartVariant : info.EndVariant, info.Duration);
-				tween.TweenCallback(Callable.From(() => OnTweenFinish(info.GetHashCode())));
-				info.ActiveTween = tween;
-				if (_tweenDictionary.TryGetValue(info.GetHashCode(), out TweenInfo storedInfo)
-					&& storedInfo.ActiveTween != null
-					&& storedInfo.ActiveTween.IsRunning())
-				{
-					GD.PrintErr($"CreateTween called while tween is currently running! This should not happen. Name: {info.Node.Name} | Property: {info.Property}");
-				}
-
-				_tweenDictionary[info.GetHashCode()] = info;
 			}
 
 			private void OnAnimationFinish()
 			{
 				GD.Print("All tweens successfully finished!");
 				Finished = true;
+				Instance.AnimationManager.RemoveMoveInfoForAnimation(this);
 			}
-
 		}
 	}
 
@@ -172,40 +353,76 @@ namespace Solitaire
     {
         private TweenInfo() {}
 
-        public static TweenInfo CreateTweenInfo(Node node, string property, double duration, Variant start, Variant end)
+        public static TweenInfo CreateTweenInfo(Node node, string property, double duration, double delay, Variant start, Variant end)
         {
+			double fullDuration = 0;
+			List<TweenAction> tweenActions = new List<TweenAction>();
+			if (delay > 0)
+			{
+				tweenActions.Add(new ActionDelay(delay));
+				fullDuration += delay;
+			}
+
+			StateChange stateChange = StateChange.CreateStateChange(node, property, start, end);
+			tweenActions.Add(new ActionActive(stateChange, duration));
+			fullDuration += duration;
             return new TweenInfo()
             {
                 Node = node,
-                Property = property,
-                Duration = duration,
-                StartVariant = start,
-                EndVariant = end,
-                InReverse = false,
-                StartTimeTicks = Time.GetTicksMsec()
+				Property = property,
+				TweenActions = tweenActions,
+                FullDuration = fullDuration
             };
         }
 
-        public Node Node { get; set; }
-        public string Property { get; set; }
-        public double Duration { get; set; }
-        public Variant StartVariant { get; set; }
-        public Variant EndVariant { get; set; }
-        public bool InReverse { get; set; }
-        public ulong StartTimeTicks { get; set; }
+		public Node Node { get; private set; }
+		public string Property { get; private set; }
+		public double FullDuration { get; private set; }
+		public List<TweenAction> TweenActions { get; private set; }
+		public TweenAction CurrentAction { get; private set; }
+		public double CurrentActionStartTimeSec { get; private set; }
 		public Tween ActiveTween { get; set; }
-
-		// TODO: Delay?
-		// TODO: Timer?
 
         public override string ToString()
         {
-            return $"Node: {Node.Name} | Property: {Property} | Duration: {Duration}";
+            return $"Node: {Node.Name} | Property: {Property} | Full Duration: {FullDuration}";
         }
 
         public override int GetHashCode()
         {
-            return (int)Node.GetInstanceId() ^ Property.GetHashCode(); 
+            return HashCode.Combine(Node.GetInstanceId(), Property.ToUpper().GetHashCode()); 
         }
+
+		public void SetCurrentAction(TweenAction currentAction)
+		{
+			CurrentAction = currentAction;
+			CurrentActionStartTimeSec = (double)Time.GetTicksMsec() / 1_000;
+		}
     }
+
+	public class StateChange
+	{
+		private StateChange() { }
+		public static StateChange CreateStateChange(Node node, string property, Variant start, Variant end)
+		{
+			return new StateChange()
+			{
+				Node = node,
+				Property = property,
+				StartVariant = start,
+				EndVariant = end
+			};
+		}
+
+		public Node Node { get; private set; }
+		public string Property { get; private set; }
+		public Variant StartVariant { get; private set; }
+		public Variant EndVariant { get; private set; }
+
+        public override string ToString()
+        {
+            return $"StateChange | Node: {Node.Name} | Property: {Property} | StartVariant: {StartVariant} | EndVariant: {EndVariant} |";
+        }
+
+	} 
 }

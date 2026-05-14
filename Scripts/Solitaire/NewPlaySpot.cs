@@ -11,6 +11,10 @@ namespace Solitaire
             throw new NotImplementedException();
         }
 
+        public override List<StateChange> CreateStateChangeForMove(List<Card> cardList)
+        {
+            throw new NotImplementedException();
+        }
 
         public bool TryDrop(Card droppedCard)
         {

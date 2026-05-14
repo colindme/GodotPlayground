@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Solitaire.GlobalMoveSystem;
 
 namespace Solitaire
 {
@@ -11,7 +10,7 @@ namespace Solitaire
     {
         [Export] Node2D TestingNode;
 
-        [Export] public ScryPile ScryPile { get; private set; }
+        [Export] public NewScryPile ScryPile { get; private set; }
 		[Export] public Godot.Collections.Array<PlaySpot> PlaySpots { get; private set; }
         [Export] public Area2D DeckArea { get; private set; }
         [Export] public Sprite2D DeckSprite { get; private set; }
@@ -22,7 +21,7 @@ namespace Solitaire
 
         private const int fullDeckCount = 52;
 		private bool _mouseHeld = false;
-        private MoveAnimation _testAnimation;
+        private GlobalMoveSystem.MoveAnimation _testAnimation;
 
         public override void _Ready()
         {
@@ -107,6 +106,48 @@ namespace Solitaire
                     else if (overDeck && mouseButtonEvent.IsReleased() && _mouseHeld)
                     {
                         _mouseHeld = false;
+
+                        if (Contents.Count == 0)
+						{
+							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move()
+                            {
+                                Destination = this,
+                                Source = ScryPile,
+                                CardList = ScryPile.Contents.ToList()
+                            };
+
+                            // Should we construct the animation here?
+                            // AnimStart -> The IsHidden property needs to be set to TRUE (If inside tree), Position needs to be tweened
+                            // (if outside tree, set position and IsHidden immediately)
+                            // AnimEnd -> Update deck sprite visuals, hide cards
+
+							GlobalMoveSystem.Instance.ExecuteMove(move);
+						}
+						else
+						{
+                            // AnimStart -> Update deck sprite visuals, set cards to be visual, set IsHidden to be false
+                            // AnimEnd -> Hide cards in the scry pile
+
+							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move()
+                            {
+                                Source = this,
+                                Destination = ScryPile,
+                                ReverseOnUndo = true
+                            };
+
+							int cardsToGrab = Mathf.Min(ScryPile.CardsToScry, Contents.Count);
+							List<Card> cards = new List<Card>();
+							LinkedListNode<Card> currNode = null;
+							for (int i = 0; i < cardsToGrab; i++)
+							{
+								currNode = currNode == null ? Contents.First : currNode.Next;
+								cards.Add(currNode.Value);
+							}
+							move.CardList = cards;
+
+							GlobalMoveSystem.Instance.ExecuteMove(move);
+						}
+
                         GetViewport().SetInputAsHandled();
                     }                    
 				}
@@ -129,16 +170,18 @@ namespace Solitaire
                 // Testing MoveAnimation
                 if (_testAnimation == null)
                 {
-                    TweenInfo t = TweenInfo.CreateTweenInfo(TestingNode, "position", 0.5, TestingNode.Position, new Vector2(100, 100));
-                    TweenInfo x = TweenInfo.CreateTweenInfo(TestingNode, "scale", 0.0, Vector2.One, new Vector2(2, 2));
-                    _testAnimation = new MoveAnimation(new List<TweenInfo>() { t, x });
+                    TweenInfo t = TweenInfo.CreateTweenInfo(TestingNode, "position", 0.5, 0.0, TestingNode.Position, new Vector2(100, 100));
+                    //TweenInfo x = TweenInfo.CreateTweenInfo(TestingNode, "scale", 0.0, 0.25, Vector2.One, new Vector2(2, 2));
+                    //StateChange y = StateChange.CreateStateChange(TestingNode, "rotation", 0.0, 0.5);
+                    _testAnimation = new GlobalMoveSystem.MoveAnimation(new List<TweenInfo>() { t }, new List<StateChange>() { });
+                    _testAnimation.PlayFromStart();
                 }
             }
 
             if (@event.IsActionPressed("test_x"))
             {
                 GD.Print("Test_X Pressed");
-                if (_testAnimation != null && _testAnimation.Finished)
+                if (_testAnimation != null)
                 {
                     _testAnimation.Reverse();
                 }
@@ -146,6 +189,11 @@ namespace Solitaire
         }
 
         public override List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<StateChange> CreateStateChangeForMove(List<Card> cardList)
         {
             throw new NotImplementedException();
         }
@@ -189,17 +237,41 @@ namespace Solitaire
 
 // Animation list
 // - Start of game to piles (NOT A MOVE)
-// - Deck to scry pile (MOVE)
-// take (UP TO) cards to scry from deck and move them to scry pile
-// make any cards that are currently not at the top position of the scry pile move up
-// - Scry pile to deck (MOVE)
-// - Scry pile to final pile (MOVE)
-// - Scry pile to play spot (MOVE)
-// - Play spot to play spot (MOVE)
-// - Play spot to final spot (MOVE)
-// - Final spot to play spot (MOVE)
-// - End of game all cards to final piles (NOT A MOVE)
-// - End of game back to deck (NOT A MOVE)
 
-// Moves will have a List<TweenEntry>
-// Pile.Source
+// - Deck to scry pile (MOVE)
+/* Start of animation
+      Cards in the deck
+        Visible = true (instantly)
+        FlippedOver = false (instantly)
+        Positioning tweens
+            
+*/
+
+// End of animation
+
+// Undo Deck to scry pile
+// Start of animation
+
+// End of animation
+
+// - Scry pile to deck (MOVE)
+// Undo
+
+// - Scry pile to final pile (MOVE)
+// Undo
+
+// - Scry pile to play spot (MOVE)
+// Undo
+
+// - Play spot to play spot (MOVE)
+// Undo
+
+// - Play spot to final spot (MOVE)
+// Undo
+
+// - Final spot to play spot (MOVE)
+// Undo
+
+// - End of game all cards to final piles (NOT A MOVE)
+
+// - End of game back to deck (NOT A MOVE)

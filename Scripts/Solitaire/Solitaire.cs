@@ -35,11 +35,15 @@ namespace Solitaire
 
 			gameRestarting = true;
 
-			// RESET DECK
 			// CLEAR AREAS
-			// RESET SCORE
-			// DEAL CARDS
+
+			// RESET DECK
 			_deck.ResetDeck();
+
+			// RESET SCORE
+			
+			// DEAL CARDS
+			List<TweenInfo> cardDealingAnimation = new List<TweenInfo>();
 			for (int i = 0 ; i < _playSpots.Count; i++)
 			{
 				bool first = true;
@@ -53,21 +57,20 @@ namespace Solitaire
 						return;
 					}
 
+					AddChild(card);
 					card.IsFlippedOver = !first;
 					card.Zone = Zone.PLAY;
-					AddChild(card);
 
-					LinkedListNode<Card> pileNode = pile.AddToPile(card);
+					pile.AddToPile(card);
 					Vector2 endingPos =  _playSpots[j].GlobalPosition + i * _playSpots[j].ChildOffset;
-					Tween t = card.CreateTween();
-					t.TweenProperty(card, "position", endingPos, _cardMovementAnimationTime).SetTrans(Tween.TransitionType.Circ);
-					//t.TweenCallback(Callable.From(() => pile.AddCardVisual(card, pileNode)));
+					cardDealingAnimation.Add(TweenInfo.CreateTweenInfo(card, "position", _cardMovementAnimationTime, ((i * _playSpots.Count) + j) * _cardLayerDelay, _deck.Position, endingPos));
 					
 					first = false;
 				}
-
-				await ToSignal(GetTree().CreateTimer(_cardLayerDelay), SceneTreeTimer.SignalName.Timeout);
 			}
+
+			GlobalMoveSystem.MoveAnimation animation = new GlobalMoveSystem.MoveAnimation(cardDealingAnimation, null);
+			animation.PlayFromStart();
 
 			gameRestarting = false;
 		}

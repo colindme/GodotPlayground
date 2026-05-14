@@ -92,6 +92,7 @@ namespace Solitaire
         }
 
 		public abstract List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList);
+        public abstract List<StateChange> CreateStateChangeForMove(List<Card> cardList);
 
 		public abstract void UpdateVisuals();
 
