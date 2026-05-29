@@ -1,38 +1,51 @@
-[gd_scene load_steps=7 format=3 uid="uid://cgaibn13nc7r3"]
+[gd_scene load_steps=8 format=3 uid="uid://cgaibn13nc7r3"]
 
 [ext_resource type="Script" uid="uid://cod25gv2pvp7w" path="res://Scripts/Solitaire/NewDeck.cs" id="1_87v5j"]
 [ext_resource type="Texture2D" uid="uid://be6vbi55k7ihp" path="res://art/CardBack.png" id="2_46df7"]
+[ext_resource type="PackedScene" uid="uid://dv5ua0n4rn750" path="res://scenes/card.tscn" id="2_ujogv"]
 [ext_resource type="Texture2D" uid="uid://bpfkmohobu73u" path="res://art/EmptyDeck.png" id="3_j3tjl"]
 [ext_resource type="Texture2D" uid="uid://34ygtsjonht1" path="res://art/DeckDepth.png" id="4_fg020"]
-[ext_resource type="Texture2D" uid="uid://1xhmxqe1c3r3" path="res://art/Spade.png" id="5_fg020"]
+[ext_resource type="PackedScene" uid="uid://c1ksneeuacthg" path="res://scenes/new_scry_pile.tscn" id="5_fg020"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_46df7"]
 size = Vector2(250, 350)
 
-[node name="NewDeck" type="Node2D" node_paths=PackedStringArray("TestingNode", "PlaySpots", "DeckArea", "DeckSprite", "DeckDepthSprite")]
+[node name="NewDeck" type="Node2D" node_paths=PackedStringArray("ScryPile", "PlaySpots", "DeckArea", "DeckSprite", "DeckDepthSprite")]
 script = ExtResource("1_87v5j")
-TestingNode = NodePath("TestingSprite")
+CardScene = ExtResource("2_ujogv")
+ScryPile = NodePath("NewScryPile")
 PlaySpots = []
-DeckArea = NodePath("DeckArea")
-DeckSprite = NodePath("MainCardBack")
-DeckDepthSprite = NodePath("DeckDepth")
+DeckArea = NodePath("Visuals/DeckArea")
+DeckSprite = NodePath("Visuals/MainCardBack")
+MoveToDeckAnimTime = 0.5
+IndividCardDelayScalar = 0.002
+DeckDepthSprite = NodePath("Visuals/DeckDepth")
 Zone = 4
 metadata/_custom_type_script = "uid://cod25gv2pvp7w"
 
-[node name="EmptyDeck" type="Sprite2D" parent="."]
+[node name="Visuals" type="Node2D" parent="."]
+scale = Vector2(0.67, 0.67)
+
+[node name="EmptyDeck" type="Sprite2D" parent="Visuals"]
+z_index = -100
 texture = ExtResource("3_j3tjl")
 
-[node name="DeckDepth" type="Sprite2D" parent="."]
+[node name="DeckDepth" type="Sprite2D" parent="Visuals"]
 position = Vector2(0, -161)
 texture = ExtResource("4_fg020")
 
-[node name="MainCardBack" type="Sprite2D" parent="."]
+[node name="MainCardBack" type="Sprite2D" parent="Visuals"]
 texture = ExtResource("2_46df7")
 
-[node name="DeckArea" type="Area2D" parent="."]
+[node name="DeckArea" type="Area2D" parent="Visuals"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DeckArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Visuals/DeckArea"]
 shape = SubResource("RectangleShape2D_46df7")
 
-[node name="TestingSprite" type="Sprite2D" parent="."]
-texture = ExtResource("5_fg020")
+[node name="NewScryPile" parent="." instance=ExtResource("5_fg020")]
+position = Vector2(200, 500)
+CardsToScry = 3
+MinCardsToShow = 3
+CardAnimTime = 0.5
+ChildOffset = Vector2(0, 90)
+Zone = 1

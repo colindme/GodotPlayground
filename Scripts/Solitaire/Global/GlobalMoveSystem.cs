@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Solitaire
 {
@@ -31,9 +32,12 @@ namespace Solitaire
 			List<TweenInfo> animationTweenInfo = move.Destination.CreateTweenInfoForMove(move.Source, move.CardList);
 			List<StateChange> animationOnStartStateChange = move.Destination.CreateStateChangeForMove(move.CardList);
 			MoveAnimation moveAnimation = new MoveAnimation(animationTweenInfo, animationOnStartStateChange);
+			string length = (animationTweenInfo != null) ? animationTweenInfo.Count.ToString() : "null";
+			GD.Print($"AnimationTweenInfo length: {length}");
 			move.Animation = moveAnimation;
 
 			Pile.Move(move.Source, move.Destination, move.CardList);
+			AnimationManager.PlayAnimationFromStart(move.Animation);
 
 			PreviousMovePile.Push(move);
 			// New move has been executed, clear the redo stack
@@ -168,11 +172,11 @@ namespace Solitaire
 				}
 
 				// Add a delay at the end of MoveAnimation for any tweens who don't have the longest duration
+				// In the future, consider not doing this and instead calculate the end delay at runtime
 				foreach (TweenInfo info in tweenInfos)
 				{
 					if (_longestDuration > info.FullDuration)
 					{
-						GD.Print($"Creating end delay for {info} | {_longestDuration - info.FullDuration}s");
 						info.TweenActions.Add(new ActionDelay(_longestDuration - info.FullDuration));
 					}
 				}
@@ -194,15 +198,11 @@ namespace Solitaire
 					CreateTweenFromAction(info);
 				}
 
-				_animStartTime = (double)Time.GetTicksMsec() / 1_000;
+				_animStartTime = (double)Time.GetTicksUsec() / 1_000_000;
 			}
 
-			// ISSUE: when spamming reverse, the anim speeds up because currentActionStartTime gets so small
-			// Calc progress?
-			// now - start time
 			public void Reverse()
 			{
-				GD.PrintErr("In Reverse");
 				InReverse = !InReverse;
 				_completedTweens = 0;
 				foreach (StateChange change in _onStartStateChanges)
@@ -213,29 +213,37 @@ namespace Solitaire
 					}
 				}
 
-				// TODO: Add logs here to debug this
-				double timeSinceAnimStart = ((double)Time.GetTicksMsec() / 1_000) - _animStartTime;
+				double elapsed = ((double)Time.GetTicksUsec() / 1_000_000) - _animStartTime;
+				elapsed = Math.Min(elapsed, _longestDuration);
+				double reverseElapsed = _longestDuration - elapsed;
 				foreach (TweenInfo info in _tweenInfos)
 				{
-					GD.Print($"currentAction: {info.CurrentAction}");
 					if (!IsInstanceValid(info.Node))
 					{
 						_completedTweens++;
 						continue;
 					}
 
-					double? timeSinceCurrentTweenActionStart = null;
-					if (info.CurrentAction != null)
+					int startIndex = InReverse ? info.TweenActions.Count - 1 : 0;
+					int endIndex = InReverse ? -1 : info.TweenActions.Count;
+					int step = InReverse ? -1 : 1;
+					double r = reverseElapsed;
+					for (int i = startIndex; i != endIndex; i += step)
 					{
-						double test = ((double)Time.GetTicksMsec() / 1_000) - info.CurrentActionStartTimeSec;
-						GD.PrintErr($"Got diff of: {test} | Full Duration {info.CurrentAction.Duration}");
-						timeSinceCurrentTweenActionStart = Math.Min(test, info.CurrentAction.Duration);
-						GD.Print($"Calculated a time since current action start of: {timeSinceCurrentTweenActionStart} for {info}");
-					}
+						TweenAction action = info.TweenActions[i];
+						r -= action.Duration;
+						if (r > 0)
+						{
+							continue;
+						}
 
-					CreateTweenFromAction(info, info.CurrentAction, timeSinceCurrentTweenActionStart);
+						double customDuration = Math.Abs(r);
+						CreateTweenFromAction(info, action, customDuration);
+						break;
+					}
 				}
 
+				_animStartTime = (double)Time.GetTicksUsec() / 1_000_000 - reverseElapsed;
 				Finished = false;
 				CheckAnimationCompletion();
 			}
@@ -246,34 +254,18 @@ namespace Solitaire
 
 				KillTween(info);
 				Tween tween = info.Node.CreateTween();
-
-				List<TweenAction> actions = info.TweenActions;
-				if (InReverse)
-				{
-					actions.Reverse();
-				}
-				
-				GD.Print("ACTIONS");
-				foreach (TweenAction action in actions)
-				{
-					GD.Print(action);
-				}
-				GD.Print("TWEEN ACTIONS ORDER");
-				foreach (TweenAction action in info.TweenActions)
-				{
-					GD.Print(action);
-				}
-
-				GD.Print($"In CreateTweenFromAction for {info}");
+				int startIndex = InReverse ? info.TweenActions.Count - 1 : 0;
+				int endIndex = InReverse ? -1 : info.TweenActions.Count;
+				int step = InReverse ? -1 : 1;
 				bool foundCustomStartAction = false;
-				foreach (TweenAction action in actions)
+				for (int i = startIndex; i != endIndex; i += step)
 				{
+					TweenAction action = info.TweenActions[i];
 					double duration = action.Duration;
 					if (customStartAction != null && !foundCustomStartAction)
 					{
 						if (action == customStartAction)
 						{
-							GD.Print($"Found custom start action: {customStartAction}");
 							foundCustomStartAction = true;
 							if (customStartDuration.HasValue)
 							{
@@ -282,24 +274,18 @@ namespace Solitaire
 						}
 						else
 						{
-							GD.Print($"Skipping action {action} because it was before custom start action: {customStartAction}");
 							continue;
 						}
 					}
 
-					GD.Print($"Creating set current action call for {action}");
-					tween.TweenCallback(Callable.From(() => info.SetCurrentAction(action)));
 					if (action is ActionDelay)
 					{
-						GD.Print($"Creating action delay for {action}");
 						tween.TweenInterval(duration);
 					}
 					else if (action is ActionActive actionActive)
 					{
-						GD.Print($"Creating action active for {action}");
 						tween.TweenProperty(info.Node, info.Property, InReverse ? actionActive.StateChange.StartVariant : actionActive.StateChange.EndVariant, duration);
 					}
-					// TODO: Log this
 				}
 
 				tween.TweenCallback(Callable.From(OnTweenFinish));
@@ -319,10 +305,6 @@ namespace Solitaire
 						_completedTweens++;
 						CheckAnimationCompletion();
 					}
-				}
-				else
-				{
-					GD.PrintErr($"CreateTween called while tween is NOTNOTNOTNOT running. Name: {info.Node.Name} | Property: {info.Property}");
 				}
 			}
 
@@ -375,13 +357,34 @@ namespace Solitaire
             };
         }
 
+		public static TweenInfo CreateTweenInfo(Node node, string property, List<TweenAction> actions)
+		{
+			double fullDuration = 0;
+			foreach(TweenAction action in actions)
+			{
+				fullDuration += action.Duration;
+			}
+
+			return new TweenInfo()
+			{
+				Node = node,
+				Property = property,
+				TweenActions = actions,
+				FullDuration = fullDuration
+			};
+		}
+
 		public Node Node { get; private set; }
 		public string Property { get; private set; }
 		public double FullDuration { get; private set; }
 		public List<TweenAction> TweenActions { get; private set; }
-		public TweenAction CurrentAction { get; private set; }
-		public double CurrentActionStartTimeSec { get; private set; }
 		public Tween ActiveTween { get; set; }
+
+		public void AppendNewAction(TweenAction action)
+		{
+			FullDuration += action.Duration;
+			TweenActions.Add(action);
+		}
 
         public override string ToString()
         {
@@ -390,14 +393,8 @@ namespace Solitaire
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Node.GetInstanceId(), Property.ToUpper().GetHashCode()); 
+            return HashCode.Combine(Node.GetInstanceId(), StringComparer.OrdinalIgnoreCase.GetHashCode(Property)); 
         }
-
-		public void SetCurrentAction(TweenAction currentAction)
-		{
-			CurrentAction = currentAction;
-			CurrentActionStartTimeSec = (double)Time.GetTicksMsec() / 1_000;
-		}
     }
 
 	public class StateChange
@@ -423,6 +420,5 @@ namespace Solitaire
         {
             return $"StateChange | Node: {Node.Name} | Property: {Property} | StartVariant: {StartVariant} | EndVariant: {EndVariant} |";
         }
-
 	} 
 }

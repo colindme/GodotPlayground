@@ -38,19 +38,17 @@ namespace Solitaire
 
 		public bool IsDraggable { get; set; } = true;
         public Zone Zone { get; set; } = Zone.NONE;
-		public IPile PileParent { get; set; }
+		public Pile PileParent { get; set; }
 		public Action CancelMove;
 		private int _value;
 		private bool _held;
 		private bool _isFlippedOver;
 		private Vector2 _heldOffset;
 		private Vector2 _childOffset;
-		private GlobalMoveSystem.Move _tempMove;
 
 		public override void _Ready()
 		{
 			InputEvent += OnInput;
-			_tempMove = null;
 		}
 
 		public override void _Process(double delta)
@@ -139,6 +137,12 @@ namespace Solitaire
 		{
 			EmitSignal(SignalName.OnValueChanged, _value);
 		}
+
+        public override string ToString()
+        {
+            return $"Value: {Value} | Suit: {Suit}";
+        }
+
     }
 
     public enum FaceValue

@@ -22,16 +22,16 @@ namespace Solitaire
 		}
 
 		[Export] public int MinCardsToShow { get; private set; }
+        [Export] public float CardAnimTime { get; private set;}
+        public int CardsToShow { get => _cardsToShow; }
 
         private int _cardsToScry;
 		private int _cardsToShow;
-        private float _cardAnimTime;
         private const int _moveZIndex = 10;
 
         public override List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList)
         {
             List<TweenInfo> tweens = new List<TweenInfo>();
-            
             List<Card> visibleList = new List<Card>();
             LinkedListNode<Card> pileNode = Contents.First;
             while (pileNode != null && pileNode.Value.Visible)
@@ -47,11 +47,11 @@ namespace Solitaire
                 int currentOffset = visibleList.Count - 1 - i;
                 bool willBecomeInvisible = (currentOffset - amountToShift) < 0;
                 int targetOffset = Math.Max(0, currentOffset - amountToShift);
-                tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "position", _cardAnimTime, 0, Position + ChildOffset * currentOffset, Position + ChildOffset * targetOffset));
-                tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "z_index", 0, _cardAnimTime, currentOffset, targetOffset));
+                tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "position", CardAnimTime, 0, Position + ChildOffset * currentOffset, Position + ChildOffset * targetOffset));
+                tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "z_index", 0, CardAnimTime, currentOffset, targetOffset));
                 if (willBecomeInvisible)
                 {
-                    tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "visible", 0, _cardAnimTime, true, false));
+                    tweens.Add(TweenInfo.CreateTweenInfo(visibleList[i], "visible", 0, CardAnimTime, true, false));
                 }
             }
 
@@ -59,8 +59,16 @@ namespace Solitaire
             int startingNewOffset = Math.Min(visibleList.Count, _cardsToShow - cardList.Count);
             for (int i = 0; i < cardList.Count; i++)
             {
-                tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", _cardAnimTime, 0, source.Position, Position + ChildOffset * (i + startingNewOffset)));
-                // zindex -> Make this a sequence? (Could require a rewrite)
+                int offset = i + startingNewOffset;
+                tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", CardAnimTime, 0, source.Position, Position + ChildOffset * offset));
+                List<TweenAction> zIndexActions = new List<TweenAction>()
+                {
+                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", 0, _moveZIndex + offset), 0),
+                  new ActionDelay(CardAnimTime),
+                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", _moveZIndex + offset, offset), 0)  
+                };
+
+                tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "z_index", zIndexActions));
                 tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "visible", 0, 0, false, true));
             }
 
@@ -84,11 +92,3 @@ namespace Solitaire
         }
     }
 }
-/*
-    Current problems:
-    ZIndex for moving scale
-    Sliding duration based on distance
-        Basically the duration of the animation should be determined by the distance
-        so MoveAnimation should also allow for a function to be passed in?
-        err or TweenInfo?
-*/

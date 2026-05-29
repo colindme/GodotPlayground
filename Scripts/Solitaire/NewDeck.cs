@@ -8,12 +8,13 @@ namespace Solitaire
     [GlobalClass]
     public partial class NewDeck : Pile
     {
-        [Export] Node2D TestingNode;
-
+        [Export] public PackedScene CardScene { get; private set;}
         [Export] public NewScryPile ScryPile { get; private set; }
 		[Export] public Godot.Collections.Array<PlaySpot> PlaySpots { get; private set; }
         [Export] public Area2D DeckArea { get; private set; }
         [Export] public Sprite2D DeckSprite { get; private set; }
+        [Export] public double MoveToDeckAnimTime { get; private set; }
+        [Export] public double IndividCardDelayScalar { get; private set; }
 		
 		[ExportCategory("Deck Depth Settings")]
 		[Export] public Sprite2D DeckDepthSprite { get; private set; }
@@ -21,7 +22,6 @@ namespace Solitaire
 
         private const int fullDeckCount = 52;
 		private bool _mouseHeld = false;
-        private GlobalMoveSystem.MoveAnimation _testAnimation;
 
         public override void _Ready()
         {
@@ -50,11 +50,15 @@ namespace Solitaire
 				for (int value = (int)FaceValue.ACE; value <= (int)FaceValue.KING; value++)
 				{
 					int index = ((int)suit * (int)FaceValue.KING) + (value - 1);
-					tempDeck[index] = new Card()
-					{
-						Suit = suit,
-						Value = value	
-					};
+
+                    // Do I need to set pile parent?
+                    Card card = CardScene.Instantiate<Card>();
+                    card.Value = value;
+                    card.Suit = suit;   
+                    card.PileParent = this;
+					tempDeck[index] = card;
+                    card.Visible = false;
+                    AddChild(card);
 				}
 			}
 
@@ -75,7 +79,6 @@ namespace Solitaire
 			DeckSprite.Visible = Contents.Count != 0;
 			DeckDepthSprite.Visible = Contents.Count != 0;
 		}
-
 
         public override void _Input(InputEvent @event)
         {
@@ -116,18 +119,10 @@ namespace Solitaire
                                 CardList = ScryPile.Contents.ToList()
                             };
 
-                            // Should we construct the animation here?
-                            // AnimStart -> The IsHidden property needs to be set to TRUE (If inside tree), Position needs to be tweened
-                            // (if outside tree, set position and IsHidden immediately)
-                            // AnimEnd -> Update deck sprite visuals, hide cards
-
 							GlobalMoveSystem.Instance.ExecuteMove(move);
 						}
 						else
 						{
-                            // AnimStart -> Update deck sprite visuals, set cards to be visual, set IsHidden to be false
-                            // AnimEnd -> Hide cards in the scry pile
-
 							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move()
                             {
                                 Source = this,
@@ -146,6 +141,7 @@ namespace Solitaire
 							move.CardList = cards;
 
 							GlobalMoveSystem.Instance.ExecuteMove(move);
+                            UpdateVisuals();
 						}
 
                         GetViewport().SetInputAsHandled();
@@ -163,73 +159,87 @@ namespace Solitaire
 					GD.Print($"Order: {i  + 1} | Card: {node.Value.Value} of {node.Value.Suit}");
 				}
 			}
-
-            if (@event.IsActionPressed("test_z"))
-            {
-                GD.Print("Test_Z Pressed");
-                // Testing MoveAnimation
-                if (_testAnimation == null)
-                {
-                    TweenInfo t = TweenInfo.CreateTweenInfo(TestingNode, "position", 0.5, 0.0, TestingNode.Position, new Vector2(100, 100));
-                    //TweenInfo x = TweenInfo.CreateTweenInfo(TestingNode, "scale", 0.0, 0.25, Vector2.One, new Vector2(2, 2));
-                    //StateChange y = StateChange.CreateStateChange(TestingNode, "rotation", 0.0, 0.5);
-                    _testAnimation = new GlobalMoveSystem.MoveAnimation(new List<TweenInfo>() { t }, new List<StateChange>() { });
-                    _testAnimation.PlayFromStart();
-                }
-            }
-
-            if (@event.IsActionPressed("test_x"))
-            {
-                GD.Print("Test_X Pressed");
-                if (_testAnimation != null)
-                {
-                    _testAnimation.Reverse();
-                }
-            }
         }
 
+        // TODO: Need to make a call to update deck visuals at the end of the anim?
         public override List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList)
         {
-            throw new NotImplementedException();
+            List<TweenInfo> result = new List<TweenInfo>();
+            int visibleCount = 0;
+            if (source is NewScryPile sp)
+            {
+                visibleCount = Math.Min(sp.CardsToShow, cardList.Count);
+            }
+
+            for (int i = 0; i < cardList.Count; i++)
+            {
+                int targetZIndex = visibleCount - 1 - i;
+                // if target is below 0, indicates the card is already hidden -> move to deck immediately
+                if (targetZIndex < 0)
+                {
+                    result.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", 0, 0, source.Position, Position));
+                }
+                else
+                {
+                    result.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", MoveToDeckAnimTime, 0, source.Position + source.ChildOffset * (cardList.Count - 1 - i), Position));
+                    // Sets z index to 0 at the end of the anim
+                    result.Add(TweenInfo.CreateTweenInfo(cardList[i], "z_index", 0, MoveToDeckAnimTime, targetZIndex, 0));
+                    result.Add(TweenInfo.CreateTweenInfo(cardList[i], "visible", 0, MoveToDeckAnimTime, true, false));
+                }
+            }
+
+            return result;
         }
 
         public override List<StateChange> CreateStateChangeForMove(List<Card> cardList)
         {
-            throw new NotImplementedException();
+            List<StateChange> result = new List<StateChange>();
+            foreach(Card card in cardList)
+            {
+                result.Add(StateChange.CreateStateChange(card, "IsFlippedOver", false, true));
+            }
+
+            return result;
         }
     }
+}
 
 /*
-    public partial class TweenManager : Node
-    {
-        private Dictionary<ulong, Dictionary<string, TweenInfo>> _tweenDictionary;
-
-        public TweenManager()
-        {
-            _tweenDictionary = new Dictionary<ulong, Dictionary<string, TweenInfo>>();
-        }
-
-        public void CreateTween(Node node, string property, double duration, Variant startVariant, Variant endVariant)
-        {
-            Tween t = node.CreateTween();
-            t.TweenProperty(node, "position", new Vector2(0, 0), 0.5);
-        }
-
-        public void ReverseTween(Node node, string property)
-        {
-            if (node == null || _tweenDictionary == null) return;
-            ulong id = node.GetInstanceId();
-            if (_tweenDictionary.TryGetValue(id, out Dictionary<string, TweenInfo> nodeTweensDict))
+List<TweenInfo> result = new List<TweenInfo>();
+            
+            int amountFromEndNotHidden = 0;
+            if (source is NewScryPile sp)
             {
-                if (nodeTweensDict.TryGetValue(property, out TweenInfo entry))
-                {
-                    ulong timeDiff = Time.GetTicksMsec() - entry.StartTimeTicks;
-                }
+                amountFromEndNotHidden = Math.Min(sp.CardsToShow, cardList.Count);
             }
-        }
-    }
-    */
-}
+
+            int zIndexOffset = amountFromEndNotHidden - cardList.Count;
+            double fullAnimTime = (cardList.Count - 1) * IndividCardDelayScalar + MoveToDeckAnimTime;
+            for (int i = 0; i < cardList.Count; i++)
+            {
+                double delay = IndividCardDelayScalar * i;
+                bool shouldStartHidden = i < cardList.Count - amountFromEndNotHidden;
+                List<TweenAction> visibilityTweenActions =
+                [
+                    new ActionActive(StateChange.CreateStateChange(cardList[i], "visible", shouldStartHidden, true), 0),
+                    new ActionDelay(fullAnimTime),
+                    new ActionActive(StateChange.CreateStateChange(cardList[i], "visible", true, false), 0),
+                ];
+                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "visible", visibilityTweenActions));
+
+                List<TweenAction> zIndexTweenActions =
+                [
+                    new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", Math.Min(0, i + zIndexOffset), i + zIndexOffset), 0),
+                    new ActionDelay(fullAnimTime),
+                    new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", i + zIndexOffset, 0), 0),
+                ];
+                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "z_index", zIndexTweenActions));
+
+                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", MoveToDeckAnimTime, delay, cardList[i].Position, Position));
+            }
+
+            return result;
+*/
 
 // NEXT UP: 
 // ANIMATING FROM THE DECK 
@@ -238,32 +248,35 @@ namespace Solitaire
 // Animation list
 // - Start of game to piles (NOT A MOVE)
 
-// - Deck to scry pile (MOVE)
-/* Start of animation
-      Cards in the deck
-        Visible = true (instantly)
-        FlippedOver = false (instantly)
-        Positioning tweens
-            
-*/
+// - Deck to scry pile (MOVE) -> DONE
 
-// End of animation
+// Undo Deck to scry pile -> Not tested
 
-// Undo Deck to scry pile
-// Start of animation
+// - Scry pile to deck (MOVE) -> ALMOST DONE
+// todo: update deck visuals at the end of the anim
 
-// End of animation
-
-// - Scry pile to deck (MOVE)
-// Undo
+// Undo -> Not tested
 
 // - Scry pile to final pile (MOVE)
+// First check it's valid move
+// Move single card to final spot
+// Update visibility for final spot top card and 2nd to top card
+// Scry pile move back into place... hmmm this is tough
+// On undo -> Scry pile readjusts...
 // Undo
 
 // - Scry pile to play spot (MOVE)
+// First check it's valid move
+// Move single card to play spot
+// Scry pile move back into place... hmmm this is tough
+// On undo -> Scry pile readjusts...
 // Undo
 
 // - Play spot to play spot (MOVE)
+// First check it's valid move
+// move cards to play spot
+// potentially reveal hidden card
+// undo -> hide hidden card
 // Undo
 
 // - Play spot to final spot (MOVE)
@@ -274,4 +287,4 @@ namespace Solitaire
 
 // - End of game all cards to final piles (NOT A MOVE)
 
-// - End of game back to deck (NOT A MOVE)
+// - End of game back to deck (NOT A MOVE) -> ALMOST DONE - not tested
