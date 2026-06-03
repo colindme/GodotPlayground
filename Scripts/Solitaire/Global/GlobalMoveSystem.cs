@@ -29,14 +29,13 @@ namespace Solitaire
 
 		public void ExecuteMove(Move move)
 		{
+			GD.Print($"Move size: {move.CardList.Count}");
 			List<TweenInfo> animationTweenInfo = move.Destination.CreateTweenInfoForMove(move.Source, move.CardList);
 			List<StateChange> animationOnStartStateChange = move.Destination.CreateStateChangeForMove(move.CardList);
 			MoveAnimation moveAnimation = new MoveAnimation(animationTweenInfo, animationOnStartStateChange);
-			string length = (animationTweenInfo != null) ? animationTweenInfo.Count.ToString() : "null";
-			GD.Print($"AnimationTweenInfo length: {length}");
 			move.Animation = moveAnimation;
 
-			Pile.Move(move.Source, move.Destination, move.CardList);
+			PileData.Move(move.Source.PileData, move.Destination.PileData, move.CardList);
 			AnimationManager.PlayAnimationFromStart(move.Animation);
 
 			PreviousMovePile.Push(move);
@@ -54,7 +53,7 @@ namespace Solitaire
 				return;
 			}
 			Move moveToUndo = PreviousMovePile.Pop();
-			Pile.Move(moveToUndo.Destination, moveToUndo.Source, moveToUndo.CardList, moveToUndo.ReverseOnUndo);
+			PileData.Move(moveToUndo.Destination.PileData, moveToUndo.Source.PileData, moveToUndo.CardList, moveToUndo.ReverseOnUndo);
 			RedoMovePile.Push(moveToUndo);
 
 			EmitSignal(SignalName.OnPreviousMovePileCountChange, PreviousMovePile.Count);
@@ -69,7 +68,7 @@ namespace Solitaire
 				return;
 			}
 			Move moveToRedo = RedoMovePile.Pop();
-			Pile.Move(moveToRedo.Source, moveToRedo.Destination, moveToRedo.CardList);
+			PileData.Move(moveToRedo.Source.PileData, moveToRedo.Destination.PileData, moveToRedo.CardList);
 			PreviousMovePile.Push(moveToRedo);
 
 			EmitSignal(SignalName.OnPreviousMovePileCountChange, PreviousMovePile.Count);
@@ -79,8 +78,8 @@ namespace Solitaire
 		public class Move
 		{
 			public List<Card> CardList { get; set; }
-			public Pile Source { get; set; }
-			public Pile Destination { get; set; }
+			public IPile Source { get; set; }
+			public IPile Destination { get; set; }
 			public bool ReverseOnUndo { get; set; }
 			public MoveAnimation Animation { get; set; }
 		}

@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://cuhh7at6giht6"]
+
+[ext_resource type="Script" uid="uid://5k47taltpfhd" path="res://Scripts/Solitaire/NewFinalSpot.cs" id="1_1g06h"]
+[ext_resource type="SpriteFrames" uid="uid://bg870021u3wg" path="res://art/final_spot_suits.tres" id="2_4cda3"]
+[ext_resource type="Script" uid="uid://68cpx1rrif8k" path="res://Scripts/Solitaire/AnimatedSpriteSuit.cs" id="3_ui1lu"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lu3xw"]
+size = Vector2(168, 236)
+
+[node name="NewFinalSpot" type="Area2D"]
+script = ExtResource("1_1g06h")
+Zone = 3
+metadata/_custom_type_script = "uid://5k47taltpfhd"
+
+[node name="SpotSprite" type="AnimatedSprite2D" parent="." node_paths=PackedStringArray("Parent")]
+scale = Vector2(0.67, 0.67)
+sprite_frames = ExtResource("2_4cda3")
+animation = &"suit"
+script = ExtResource("3_ui1lu")
+Parent = NodePath("..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1.9073486e-06, 1.9073486e-06)
+shape = SubResource("RectangleShape2D_lu3xw")

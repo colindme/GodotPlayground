@@ -4,19 +4,14 @@ using System.Collections.Generic;
 
 namespace Solitaire
 {
-	[GlobalClass]
-	public abstract partial class Pile : Node2D
+	public partial class PileData
 	{
 		public LinkedList<Card> Contents { get; } = new LinkedList<Card>();
 
-		[Export] public Vector2 ChildOffset	{ get; protected set; }
-
-		[Export] public Zone Zone { get; protected set; }
-
 		/// <summary>
-        /// Attempts to search a pile for a specific Card. This search is conducted from the front of the pile.
+        /// Attempts to search a PileData for a specific Card. This search is conducted from the front of the pile.
         /// </summary>
-        /// <param name="card">The exact card info to search a pile for</param>
+        /// <param name="card">The exact card info to search a PileData for</param>
         /// <returns>A list of cards, starting with the desired card. Null if not found</returns>
         public List<Card> SearchUntilCard(Card card)
         {
@@ -91,12 +86,7 @@ namespace Solitaire
             Contents.Clear();
         }
 
-		public abstract List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList);
-        public abstract List<StateChange> CreateStateChangeForMove(List<Card> cardList);
-
-		public abstract void UpdateVisuals();
-
-		public static void Move(Pile source, Pile destination, List<Card> cardList, bool reverseCards = false)
+		public static void Move(PileData source, PileData destination, List<Card> cardList, bool reverseCards = false)
         {
             if (cardList == null) return;
             source.RemoveFromPile(cardList.Count);

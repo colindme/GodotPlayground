@@ -6,39 +6,28 @@ using System.Linq;
 namespace Solitaire
 {
     [GlobalClass]
-    public partial class NewDeck : Pile
+    public partial class NewDeck : Area2D, IPile
     {
         [Export] public PackedScene CardScene { get; private set;}
         [Export] public NewScryPile ScryPile { get; private set; }
-		[Export] public Godot.Collections.Array<PlaySpot> PlaySpots { get; private set; }
-        [Export] public Area2D DeckArea { get; private set; }
         [Export] public Sprite2D DeckSprite { get; private set; }
         [Export] public double MoveToDeckAnimTime { get; private set; }
         [Export] public double IndividCardDelayScalar { get; private set; }
+		[Export] public Zone Zone { get; private set; }
 		
 		[ExportCategory("Deck Depth Settings")]
 		[Export] public Sprite2D DeckDepthSprite { get; private set; }
 		[Export] public float DeckDepthCardScalar { get; private set; } =  0.02f;
 
+        public PileData PileData { get; private set; }
+        public Vector2 ChildOffset	{ get; private set; }
         private const int fullDeckCount = 52;
 		private bool _mouseHeld = false;
 
         public override void _Ready()
         {
-            if (DeckArea == null)
-            {
-                DeckArea = GetNodeOrNull<Area2D>(nameof(DeckArea));
-            }
-
-            if (DeckArea != null)
-            {
-                DeckArea.InputPickable = true;
-            }
-            else
-            {
-                GD.PrintErr($"{nameof(DeckArea)} was null and could not be found. Check Deck scene");
-            }
-
+            InputPickable = true;
+            PileData = new PileData();
             ResetDeck();
         }
 
@@ -51,7 +40,6 @@ namespace Solitaire
 				{
 					int index = ((int)suit * (int)FaceValue.KING) + (value - 1);
 
-                    // Do I need to set pile parent?
                     Card card = CardScene.Instantiate<Card>();
                     card.Value = value;
                     card.Suit = suit;   
@@ -64,20 +52,20 @@ namespace Solitaire
 
 			// TODO: Seed this?
 			Random.Shared.Shuffle(tempDeck);
-			if (Contents.Count != 0)
+			if (PileData.Contents.Count != 0)
 			{
-				Contents.Clear();
+				PileData.Contents.Clear();
 			}
 
-			AddToPile(tempDeck.ToList());
+			PileData.AddToPile(tempDeck.ToList());
             UpdateVisuals();
 		}
 
-        public override void UpdateVisuals()
+        public void UpdateVisuals()
 		{
-			DeckDepthSprite.Scale = new Vector2(DeckDepthSprite.Scale.X, 1 + (DeckDepthCardScalar * Contents.Count));
-			DeckSprite.Visible = Contents.Count != 0;
-			DeckDepthSprite.Visible = Contents.Count != 0;
+			DeckDepthSprite.Scale = new Vector2(DeckDepthSprite.Scale.X, 1 + (DeckDepthCardScalar * PileData.Contents.Count));
+			DeckSprite.Visible = PileData.Contents.Count != 0;
+			DeckDepthSprite.Visible = PileData.Contents.Count != 0;
 		}
 
         public override void _Input(InputEvent @event)
@@ -95,7 +83,7 @@ namespace Solitaire
                         CollideWithAreas = true
                     }))
                     {
-                        if (objs["rid"].As<Rid>() == DeckArea.GetRid())
+                        if (objs["rid"].As<Rid>() == GetRid())
                         {
                             overDeck = true;
                         }
@@ -110,13 +98,13 @@ namespace Solitaire
                     {
                         _mouseHeld = false;
 
-                        if (Contents.Count == 0)
+                        if (PileData.Contents.Count == 0)
 						{
 							GlobalMoveSystem.Move move = new GlobalMoveSystem.Move()
                             {
                                 Destination = this,
                                 Source = ScryPile,
-                                CardList = ScryPile.Contents.ToList()
+                                CardList = ScryPile.PileData.Contents.ToList()
                             };
 
 							GlobalMoveSystem.Instance.ExecuteMove(move);
@@ -130,12 +118,12 @@ namespace Solitaire
                                 ReverseOnUndo = true
                             };
 
-							int cardsToGrab = Mathf.Min(ScryPile.CardsToScry, Contents.Count);
+							int cardsToGrab = Mathf.Min(ScryPile.CardsToScry, PileData.Contents.Count);
 							List<Card> cards = new List<Card>();
 							LinkedListNode<Card> currNode = null;
 							for (int i = 0; i < cardsToGrab; i++)
 							{
-								currNode = currNode == null ? Contents.First : currNode.Next;
+								currNode = currNode == null ? PileData.Contents.First : currNode.Next;
 								cards.Add(currNode.Value);
 							}
 							move.CardList = cards;
@@ -153,16 +141,16 @@ namespace Solitaire
 			{
 				GD.Print("Deck contents:");
 				LinkedListNode<Card> node = null;
-				for (int i = 0; i < Contents.Count; i++)
+				for (int i = 0; i < PileData.Contents.Count; i++)
 				{
-					node = node == null ? Contents.First : node.Next;
+					node = node == null ? PileData.Contents.First : node.Next;
 					GD.Print($"Order: {i  + 1} | Card: {node.Value.Value} of {node.Value.Suit}");
 				}
 			}
         }
 
         // TODO: Need to make a call to update deck visuals at the end of the anim?
-        public override List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList)
+        public List<TweenInfo> CreateTweenInfoForMove(IPile source, List<Card> cardList)
         {
             List<TweenInfo> result = new List<TweenInfo>();
             int visibleCount = 0;
@@ -191,7 +179,7 @@ namespace Solitaire
             return result;
         }
 
-        public override List<StateChange> CreateStateChangeForMove(List<Card> cardList)
+        public List<StateChange> CreateStateChangeForMove(List<Card> cardList)
         {
             List<StateChange> result = new List<StateChange>();
             foreach(Card card in cardList)
@@ -270,6 +258,10 @@ List<TweenInfo> result = new List<TweenInfo>();
 // Move single card to play spot
 // Scry pile move back into place... hmmm this is tough
 // On undo -> Scry pile readjusts...
+// Under the current system, only play/final spot gets the CreateTweenInfoForMove / CreateStateChangeForMove
+// source, cardList (only contains one card)
+// We could check if source is NewScryPile
+// If it is, create tween info from that?
 // Undo
 
 // - Play spot to play spot (MOVE)

@@ -44,34 +44,36 @@ namespace Solitaire
 			
 			// DEAL CARDS
 			List<TweenInfo> cardDealingAnimation = new List<TweenInfo>();
+			List<StateChange> cardDealingStateChange = new List<StateChange>();
 			for (int i = 0 ; i < _playSpots.Count; i++)
 			{
 				bool first = true;
 				for (int j = i; j < _playSpots.Count; j++)
 				{
-					Pile pile = _playSpots[j];
-					Card card = _deck.PopFrontCard();
+					IPile pile = _playSpots[j];
+					Card card = _deck.PileData.PopFrontCard();
 					if (card == null)
 					{
 						GD.PrintErr($"Failed to reset game. Tried to pop a card off the front of deck but it returned null");
 						return;
 					}
 
-					AddChild(card);
+					card.Visible = true;
 					card.IsFlippedOver = !first;
 					card.Zone = Zone.PLAY;
 
-					pile.AddToPile(card);
+					pile.PileData.AddToPile(card);
 					Vector2 endingPos =  _playSpots[j].GlobalPosition + i * _playSpots[j].ChildOffset;
 					cardDealingAnimation.Add(TweenInfo.CreateTweenInfo(card, "position", _cardMovementAnimationTime, ((i * _playSpots.Count) + j) * _cardLayerDelay, _deck.Position, endingPos));
+					cardDealingStateChange.Add(StateChange.CreateStateChange(card, "z_index", 0, j));
 					
 					first = false;
 				}
 			}
 
-			GlobalMoveSystem.MoveAnimation animation = new GlobalMoveSystem.MoveAnimation(cardDealingAnimation, null);
+			GlobalMoveSystem.MoveAnimation animation = new GlobalMoveSystem.MoveAnimation(cardDealingAnimation, cardDealingStateChange);
 			animation.PlayFromStart();
-
+			
 			gameRestarting = false;
 		}
 	}

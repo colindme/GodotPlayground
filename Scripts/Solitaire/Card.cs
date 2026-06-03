@@ -25,7 +25,6 @@ namespace Solitaire
 
 		[Export] private int HeldZIndex = 10;
 		[ExportCategory("Drop Spot Settings")]
-		[Export] public Vector2 ChildOffset { get => _childOffset; set => _childOffset = value; }
 		[Export(PropertyHint.Range, "1,13,")]
 		public int Value { 
 			get => _value;
@@ -38,8 +37,7 @@ namespace Solitaire
 
 		public bool IsDraggable { get; set; } = true;
         public Zone Zone { get; set; } = Zone.NONE;
-		public Pile PileParent { get; set; }
-		public Action CancelMove;
+		public IPile PileParent { get; set; }
 		private int _value;
 		private bool _held;
 		private bool _isFlippedOver;
@@ -97,7 +95,7 @@ namespace Solitaire
 
 					if (revertMove)
 					{
-						CancelMove();
+						
 					}
 					
 					GetViewport().SetInputAsHandled();

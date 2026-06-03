@@ -6,7 +6,7 @@ using System.Linq;
 namespace Solitaire
 {
     [GlobalClass]
-    public partial class NewScryPile : Pile
+    public partial class NewScryPile : Node2D, IPile
     {
         [Export]
 		public int CardsToScry
@@ -21,19 +21,30 @@ namespace Solitaire
 			}
 		}
 
+        [Export] public Vector2 ChildOffset	{ get; private set; }
+		[Export] public Zone Zone { get; private set; }
 		[Export] public int MinCardsToShow { get; private set; }
         [Export] public float CardAnimTime { get; private set;}
         public int CardsToShow { get => _cardsToShow; }
+
+        public PileData PileData { get; private set; }
+
 
         private int _cardsToScry;
 		private int _cardsToShow;
         private const int _moveZIndex = 10;
 
-        public override List<TweenInfo> CreateTweenInfoForMove(Pile source, List<Card> cardList)
+        public override void _Ready()
+        {
+            PileData = new PileData();
+            base._Ready();
+        }
+
+        public List<TweenInfo> CreateTweenInfoForMove(IPile source, List<Card> cardList)
         {
             List<TweenInfo> tweens = new List<TweenInfo>();
             List<Card> visibleList = new List<Card>();
-            LinkedListNode<Card> pileNode = Contents.First;
+            LinkedListNode<Card> pileNode = PileData.Contents.First;
             while (pileNode != null && pileNode.Value.Visible)
             {
                 visibleList.Add(pileNode.Value);
@@ -75,7 +86,7 @@ namespace Solitaire
             return tweens;
         }
 
-        public override List<StateChange> CreateStateChangeForMove(List<Card> cardList)
+        public List<StateChange> CreateStateChangeForMove(List<Card> cardList)
         {
             List<StateChange> result = new List<StateChange>();
             foreach (Card card in cardList)
@@ -86,7 +97,7 @@ namespace Solitaire
             return result;
         }
 
-        public override void UpdateVisuals()
+        public void UpdateVisuals()
         {
             throw new NotImplementedException();
         }
