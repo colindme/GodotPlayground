@@ -32,11 +32,10 @@ namespace Solitaire
 
         private int _cardsToScry;
 		private int _cardsToShow;
-        private const int _moveZIndex = 10;
 
         public override void _Ready()
         {
-            PileData = new PileData();
+            PileData = new PileData(this);
             base._Ready();
         }
 
@@ -74,9 +73,9 @@ namespace Solitaire
                 tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", CardAnimTime, 0, source.Position, Position + ChildOffset * offset));
                 List<TweenAction> zIndexActions = new List<TweenAction>()
                 {
-                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", 0, _moveZIndex + offset), 0),
+                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", 0, SolitaireGlobals.MoveZIndex + offset), 0),
                   new ActionDelay(CardAnimTime),
-                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", _moveZIndex + offset, offset), 0)  
+                  new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index",  SolitaireGlobals.MoveZIndex + offset, offset), 0)  
                 };
 
                 tweens.Add(TweenInfo.CreateTweenInfo(cardList[i], "z_index", zIndexActions));

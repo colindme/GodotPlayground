@@ -20,6 +20,7 @@ size = Vector2(250, 350)
 [node name="Card" type="Area2D" node_paths=PackedStringArray("FlippedOverSprite")]
 z_index = 1
 script = ExtResource("1_d81rb")
+CardReturnAnimTime = 0.3
 FlippedOverSprite = NodePath("Visuals/CardBack")
 Value = 10
 

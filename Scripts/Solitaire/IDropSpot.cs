@@ -5,6 +5,6 @@ namespace Solitaire
 {
 	public interface IDropSpot
 	{
-		public bool TryDrop(Card droppedCard);
+		public bool TryDrop(Card droppedCard, out IPile destinationPile);
 	}
 }

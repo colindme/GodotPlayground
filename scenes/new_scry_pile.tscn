@@ -8,5 +8,5 @@ CardsToScry = 3
 ChildOffset = Vector2(0, 75)
 Zone = 1
 MinCardsToShow = 3
-CardAnimTime = 0.5
+CardAnimTime = 0.35
 metadata/_custom_type_script = "uid://cnn4ydv4euctb"

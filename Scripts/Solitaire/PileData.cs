@@ -8,6 +8,13 @@ namespace Solitaire
 	{
 		public LinkedList<Card> Contents { get; } = new LinkedList<Card>();
 
+        private IPile _pileOwner; 
+
+        public PileData(IPile pileOwner)
+        {
+            _pileOwner = pileOwner;
+        }
+
 		/// <summary>
         /// Attempts to search a PileData for a specific Card. This search is conducted from the front of the pile.
         /// </summary>
@@ -37,6 +44,31 @@ namespace Solitaire
                 return cards;
             }
             return null;
+        }
+
+        // Returns -1 if card was not found in the pile
+        public int GetCardCountUnderCard(Card card)
+        {
+            List<Card> cards = SearchUntilCard(card);
+            return cards != null ? cards.Count - 1 : -1;
+        }
+
+        public int GetIndexForCard(Card card)
+        {
+            int index = -1;
+            LinkedListNode<Card> node = Contents.First;
+            while (node != null)
+            {
+                index++;
+                if (node.Value == card)
+                {
+                    break;
+                }
+
+                node = node.Next;
+            }
+
+            return index;
         }
 
         public void RemoveFromPile(int count)
@@ -69,6 +101,7 @@ namespace Solitaire
             List<LinkedListNode<Card>> newNodes = new List<LinkedListNode<Card>>();
             for (int i = 0; i < cards.Count; i++)
             {
+                cards[i].PileParent = _pileOwner;
                 newNodes.Add(Contents.AddFirst(cards[i]));
             }
 
@@ -78,12 +111,8 @@ namespace Solitaire
 
         public LinkedListNode<Card> AddToPile(Card card)
         {
+            card.PileParent = _pileOwner;
             return Contents.AddFirst(card);
-        }
-
-        public void ClearPile(Vector2 visualClearPosition, float visualClearTime)
-        {
-            Contents.Clear();
         }
 
 		public static void Move(PileData source, PileData destination, List<Card> cardList, bool reverseCards = false)

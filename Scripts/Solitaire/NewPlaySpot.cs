@@ -22,7 +22,7 @@ namespace Solitaire
 
         public override void _Ready()
         {
-            PileData = new PileData();
+            PileData = new PileData(this);
         }
 
         public List<StateChange> CreateStateChangeForMove(List<Card> cardList)
@@ -35,14 +35,20 @@ namespace Solitaire
             throw new NotImplementedException();
         }
 
-        public bool TryDrop(Card droppedCard)
+        public bool TryDrop(Card droppedCard, out IPile pile)
         {
+            pile = this;
             throw new NotImplementedException();
         }
 
         public void UpdateVisuals()
         {
             throw new NotImplementedException();
+        }
+
+        public List<Card> GetCardsUnderCard(Card card)
+        {
+            return PileData.SearchUntilCard(card);
         }
     }
 }

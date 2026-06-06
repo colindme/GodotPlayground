@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
+using System.Collections.Generic;
 
 namespace Solitaire
 {
@@ -8,6 +9,7 @@ namespace Solitaire
 	public partial class Card : SuitedBase, IDropSpot
 	{
 		[Signal] public delegate void OnValueChangedEventHandler(int value);
+		[Export] public double CardReturnAnimTime;
 		[Export] private Sprite2D FlippedOverSprite;
 		[Export]
 		public bool IsFlippedOver
@@ -23,7 +25,6 @@ namespace Solitaire
 			}
 		}
 
-		[Export] private int HeldZIndex = 10;
 		[ExportCategory("Drop Spot Settings")]
 		[Export(PropertyHint.Range, "1,13,")]
 		public int Value { 
@@ -43,6 +44,8 @@ namespace Solitaire
 		private bool _isFlippedOver;
 		private Vector2 _heldOffset;
 		private Vector2 _childOffset;
+		private Vector2 _heldStartPosition;
+		private int _heldStartZIndex;
 
 		public override void _Ready()
 		{
@@ -84,9 +87,18 @@ namespace Solitaire
 							if (vCollider.AsGodotObject() is Area2D area && 
 								area is IDropSpot dropSpot)
 							{
-								if (dropSpot.TryDrop(this))
+								if (dropSpot.TryDrop(this, out IPile destinationPile))
 								{
 									revertMove = false;
+									GlobalMoveSystem.Move move = new GlobalMoveSystem.Move()
+									{
+										Source = PileParent,
+										Destination = destinationPile,
+										ReverseOnUndo = false,
+										// TODO: What about cards under this if we are moving play piles around...
+										CardList = new List<Card>() { this }	
+									};
+									GlobalMoveSystem.Instance.ExecuteMove(move);
 									break;
 								}
 							}
@@ -95,7 +107,14 @@ namespace Solitaire
 
 					if (revertMove)
 					{
-						
+						List<TweenInfo> revertTweenInfo =
+                        [
+                            TweenInfo.CreateTweenInfo(this, "z_index", 0, CardReturnAnimTime, SolitaireGlobals.MoveZIndex, _heldStartZIndex),
+                            TweenInfo.CreateTweenInfo(this, "position", CardReturnAnimTime, 0, Position, _heldStartPosition),
+                        ];
+
+						GlobalMoveSystem.MoveAnimation animation = new GlobalMoveSystem.MoveAnimation(revertTweenInfo, null);
+						animation.PlayFromStart();
 					}
 					
 					GetViewport().SetInputAsHandled();
@@ -111,21 +130,25 @@ namespace Solitaire
 				{
 					if (IsDraggable)
 					{
+						// TODO: What about cards under this if we are moving play piles around...
 						_held = true;
+						_heldStartPosition = Position;
+						_heldStartZIndex = ZIndex;
 						_heldOffset = GlobalPosition - mouseButtonEvent.GlobalPosition;
-						ZIndex = HeldZIndex;
+						ZIndex = SolitaireGlobals.MoveZIndex;
 						GetViewport().SetInputAsHandled();
 					}
 				}
 			}
 		}
 
-		public bool TryDrop(Card droppedCard)
+		public bool TryDrop(Card droppedCard, out IPile pile)
 		{
 			bool success = false;
+			pile = null;
 			if (PileParent != null && PileParent is IDropSpot dropSpot)
 			{
-				success = dropSpot.TryDrop(droppedCard);
+				success = dropSpot.TryDrop(droppedCard, out pile);
 			}
 
             return success;

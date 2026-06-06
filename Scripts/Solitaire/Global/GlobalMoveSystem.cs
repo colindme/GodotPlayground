@@ -184,17 +184,23 @@ namespace Solitaire
 			public void PlayFromStart()
 			{
 				Finished = false;
-				foreach (StateChange change in _onStartStateChanges)
+				if (_onStartStateChanges != null)
 				{
-					if (IsInstanceValid(change.Node))
+					foreach (StateChange change in _onStartStateChanges)
 					{
-						change.Node.Set(change.Property, change.EndVariant);
+						if (IsInstanceValid(change.Node))
+						{
+							change.Node.Set(change.Property, change.EndVariant);
+						}
 					}
 				}
 
-				foreach (TweenInfo info in _tweenInfos)
+				if (_tweenInfos != null)
 				{
-					CreateTweenFromAction(info);
+					foreach (TweenInfo info in _tweenInfos)
+					{
+						CreateTweenFromAction(info);
+					}
 				}
 
 				_animStartTime = (double)Time.GetTicksUsec() / 1_000_000;

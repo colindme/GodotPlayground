@@ -9,13 +9,11 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_46df7"]
 size = Vector2(167.16417, 235.82089)
 
-[node name="Deck" type="Area2D" node_paths=PackedStringArray("ScryPile", "DeckSprite", "DeckDepthSprite")]
+[node name="Deck" type="Area2D" node_paths=PackedStringArray("DeckSprite", "DeckDepthSprite")]
 script = ExtResource("1_87v5j")
 CardScene = ExtResource("2_ujogv")
-ScryPile = NodePath("")
 DeckSprite = NodePath("Visuals/MainCardBack")
-MoveToDeckAnimTime = 0.5
-IndividCardDelayScalar = 0.002
+MoveToDeckAnimTime = 0.35
 Zone = 4
 DeckDepthSprite = NodePath("Visuals/DeckDepth")
 

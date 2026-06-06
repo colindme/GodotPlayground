@@ -11,7 +11,7 @@ namespace Solitaire
 		[Export] private Godot.Collections.Array<NewPlaySpot> _playSpots;
 		[Export] private PackedScene _cardScene;
 		[Export] private float _cardMovementAnimationTime = 0.75f;
-		[Export] private float _cardLayerDelay = 0.05f;
+		[Export] private double _cardLayerDelay = 0.05;
 
 		private bool gameRestarting = false;
 
@@ -19,6 +19,36 @@ namespace Solitaire
         {
             ResetGame();
         }
+
+        public override void _Input(InputEvent @event)
+        {
+            if (@event.IsActionPressed("test_z"))
+			{
+				Godot.Collections.Array<Godot.Collections.Dictionary> objectsUnderClick = GetWorld2D().DirectSpaceState.IntersectPoint(
+					new PhysicsPointQueryParameters2D()
+					{
+						Position = GetViewport().GetMousePosition(),
+						CollideWithAreas = true
+					}
+				);
+
+				foreach(Godot.Collections.Dictionary obj in objectsUnderClick)
+				{
+					if (obj.TryGetValue("collider", out Variant vCollider))
+					{
+						if (vCollider.AsGodotObject() is Card card)
+						{
+							GD.Print($"{card} : {card.PileParent.PileData.GetCardCountUnderCard(card)}");
+							GD.Print(Math.Abs(card.PileParent.PileData.GetIndexForCard(card) - (card.PileParent.PileData.Contents.Count - 1)));
+							break;
+						}
+					}
+				}
+
+				GetViewport().SetInputAsHandled();
+			}
+        }
+
 
 		public async void ResetGame()
 		{
@@ -50,6 +80,7 @@ namespace Solitaire
 				bool first = true;
 				for (int j = i; j < _playSpots.Count; j++)
 				{
+					GD.Print((i * _playSpots.Count) + j);
 					IPile pile = _playSpots[j];
 					Card card = _deck.PileData.PopFrontCard();
 					if (card == null)
@@ -58,14 +89,16 @@ namespace Solitaire
 						return;
 					}
 
-					card.Visible = true;
 					card.IsFlippedOver = !first;
+					card.IsDraggable = first;
 					card.Zone = Zone.PLAY;
 
 					pile.PileData.AddToPile(card);
 					Vector2 endingPos =  _playSpots[j].GlobalPosition + i * _playSpots[j].ChildOffset;
-					cardDealingAnimation.Add(TweenInfo.CreateTweenInfo(card, "position", _cardMovementAnimationTime, ((i * _playSpots.Count) + j) * _cardLayerDelay, _deck.Position, endingPos));
-					cardDealingStateChange.Add(StateChange.CreateStateChange(card, "z_index", 0, j));
+					double delay = ((i * _playSpots.Count) + j) * _cardLayerDelay;
+					cardDealingAnimation.Add(TweenInfo.CreateTweenInfo(card, "position", _cardMovementAnimationTime, delay, _deck.Position, endingPos));
+					cardDealingAnimation.Add(TweenInfo.CreateTweenInfo(card, "visible", 0, delay, false, true));
+					cardDealingStateChange.Add(StateChange.CreateStateChange(card, "z_index", 0, i));
 					
 					first = false;
 				}

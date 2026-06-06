@@ -13,13 +13,15 @@ script = ExtResource("1_t0fxo")
 _deck = NodePath("Deck")
 _playSpots = [NodePath("PlaySpotHolder/NewPlaySpot"), NodePath("PlaySpotHolder/NewPlaySpot2"), NodePath("PlaySpotHolder/NewPlaySpot3"), NodePath("PlaySpotHolder/NewPlaySpot4"), NodePath("PlaySpotHolder/NewPlaySpot5"), NodePath("PlaySpotHolder/NewPlaySpot6"), NodePath("PlaySpotHolder/NewPlaySpot7")]
 _cardScene = ExtResource("2_mevcl")
+_cardMovementAnimationTime = 0.5
+_cardLayerDelay = 0.02
 
 [node name="FinalSpotHolder" type="Node2D" parent="." node_paths=PackedStringArray("ExceptionNodes")]
 position = Vector2(1800, 0)
 script = ExtResource("4_et5vu")
 InitialOffset = Vector2(0, 128)
-ChildOffset = Vector2(0, 250)
 ExceptionNodes = []
+ChildOffset = Vector2(0, 250)
 
 [node name="NewFinalSpot" parent="FinalSpotHolder" instance=ExtResource("4_ap2bv")]
 position = Vector2(0, 128)
@@ -39,8 +41,8 @@ Suit = 3
 [node name="PlaySpotHolder" type="Node2D" parent="." node_paths=PackedStringArray("ExceptionNodes")]
 position = Vector2(370, 132)
 script = ExtResource("4_et5vu")
-ChildOffset = Vector2(200, 0)
 ExceptionNodes = []
+ChildOffset = Vector2(200, 0)
 
 [node name="NewPlaySpot" parent="PlaySpotHolder" instance=ExtResource("5_et5vu")]
 

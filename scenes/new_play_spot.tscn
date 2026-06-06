@@ -7,6 +7,7 @@
 size = Vector2(168, 236)
 
 [node name="NewPlaySpot" type="Area2D"]
+z_index = -1
 script = ExtResource("1_vj0rp")
 ChildOffset = Vector2(0, 75)
 Zone = 2

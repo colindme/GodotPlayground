@@ -12,7 +12,6 @@ namespace Solitaire
         [Export] public NewScryPile ScryPile { get; private set; }
         [Export] public Sprite2D DeckSprite { get; private set; }
         [Export] public double MoveToDeckAnimTime { get; private set; }
-        [Export] public double IndividCardDelayScalar { get; private set; }
 		[Export] public Zone Zone { get; private set; }
 		
 		[ExportCategory("Deck Depth Settings")]
@@ -27,7 +26,7 @@ namespace Solitaire
         public override void _Ready()
         {
             InputPickable = true;
-            PileData = new PileData();
+            PileData = new PileData(this);
             ResetDeck();
         }
 
@@ -46,7 +45,8 @@ namespace Solitaire
                     card.PileParent = this;
 					tempDeck[index] = card;
                     card.Visible = false;
-                    AddChild(card);
+                    card.Position = GlobalPosition;
+                    Callable.From(() => GetTree().CurrentScene.AddChild(card)).CallDeferred();
 				}
 			}
 
@@ -191,43 +191,6 @@ namespace Solitaire
         }
     }
 }
-
-/*
-List<TweenInfo> result = new List<TweenInfo>();
-            
-            int amountFromEndNotHidden = 0;
-            if (source is NewScryPile sp)
-            {
-                amountFromEndNotHidden = Math.Min(sp.CardsToShow, cardList.Count);
-            }
-
-            int zIndexOffset = amountFromEndNotHidden - cardList.Count;
-            double fullAnimTime = (cardList.Count - 1) * IndividCardDelayScalar + MoveToDeckAnimTime;
-            for (int i = 0; i < cardList.Count; i++)
-            {
-                double delay = IndividCardDelayScalar * i;
-                bool shouldStartHidden = i < cardList.Count - amountFromEndNotHidden;
-                List<TweenAction> visibilityTweenActions =
-                [
-                    new ActionActive(StateChange.CreateStateChange(cardList[i], "visible", shouldStartHidden, true), 0),
-                    new ActionDelay(fullAnimTime),
-                    new ActionActive(StateChange.CreateStateChange(cardList[i], "visible", true, false), 0),
-                ];
-                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "visible", visibilityTweenActions));
-
-                List<TweenAction> zIndexTweenActions =
-                [
-                    new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", Math.Min(0, i + zIndexOffset), i + zIndexOffset), 0),
-                    new ActionDelay(fullAnimTime),
-                    new ActionActive(StateChange.CreateStateChange(cardList[i], "z_index", i + zIndexOffset, 0), 0),
-                ];
-                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "z_index", zIndexTweenActions));
-
-                result.Add(TweenInfo.CreateTweenInfo(cardList[i], "position", MoveToDeckAnimTime, delay, cardList[i].Position, Position));
-            }
-
-            return result;
-*/
 
 // NEXT UP: 
 // ANIMATING FROM THE DECK 
