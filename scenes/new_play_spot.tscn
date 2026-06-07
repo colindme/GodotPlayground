@@ -11,6 +11,7 @@ z_index = -1
 script = ExtResource("1_vj0rp")
 ChildOffset = Vector2(0, 75)
 Zone = 2
+CardAnimTime = 0.5
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.67, 0.67)

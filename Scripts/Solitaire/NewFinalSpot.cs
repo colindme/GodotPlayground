@@ -42,9 +42,9 @@ namespace Solitaire
             for (int i = 0; i < cardList.Count; i++)
             {
                 Card card = cardList[i];
-                int offset = Math.Abs(card.PileParent.PileData.GetIndexForCard(card) - (card.PileParent.PileData.Contents.Count - 1));
+                int offset = source.GetChildOffsetCountForCard(card);
                 
-                result.Add(TweenInfo.CreateTweenInfo(card, "position", CardAnimTime, 0, card.PileParent.Position + card.PileParent.ChildOffset * offset, GlobalPosition));
+                result.Add(TweenInfo.CreateTweenInfo(card, "position", CardAnimTime, 0, card.PileParent.GlobalPosition + card.PileParent.ChildOffset * offset, GlobalPosition));
 
                 List<TweenAction> zIndexActions =
                 [
@@ -80,5 +80,12 @@ namespace Solitaire
         {
             throw new NotImplementedException();
         }
+
+        public int GetChildOffsetCountForCard(Card card)
+        {
+            // No offset for children in FinalSpot
+            return 0;
+        }
+
     }
 }

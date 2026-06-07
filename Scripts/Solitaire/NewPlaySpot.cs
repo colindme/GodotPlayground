@@ -4,21 +4,12 @@ using System.Collections.Generic;
 
 namespace Solitaire
 {
-    // I think I have to solve this one now
-    // Rules for the play spot
-    // start of game
-    // manually add cards + animate
-    // 
-    // during game
-    // how to handle children??
-    //
-    // end of game
-    // just animate to deck
     public partial class NewPlaySpot : Area2D, IDropSpot, IPile
     {
         public PileData PileData { get; private set; }
         [Export] public Vector2 ChildOffset	{ get; set; }
 		[Export] public Zone Zone { get; set; }
+        [Export] public double CardAnimTime { get; set;}
 
         public override void _Ready()
         {
@@ -27,18 +18,64 @@ namespace Solitaire
 
         public List<StateChange> CreateStateChangeForMove(List<Card> cardList)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public List<TweenInfo> CreateTweenInfoForMove(IPile source, List<Card> cardList)
         {
-            throw new NotImplementedException();
+            List<TweenInfo> result = new List<TweenInfo>();
+
+            // This can happen from SCRY, PLAY, FINAL
+            // POSITION
+            // Z INDEX
+            if (cardList == null || cardList.Count == 0)
+            {
+                GD.PrintErr("PlaySpot.CreateTweenInfoForMove was passed an empty or null cardList");
+                return result;
+            }
+
+            int offset = cardList[0].PileParent.GetChildOffsetCountForCard(cardList[0]);
+            int targetOffset = PileData.Contents.Count;
+            for (int i = 0; i < cardList.Count; i++)
+            {
+                Card card = cardList[i];
+
+                result.Add(TweenInfo.CreateTweenInfo(card, "position",  
+                    start: card.PileParent.GlobalPosition + (offset * card.PileParent.ChildOffset), 
+                    end: GlobalPosition + (targetOffset * ChildOffset), 
+                    duration: CardAnimTime, 
+                    delay: 0));
+                result.Add(TweenInfo.CreateTweenInfo(card, "z_index",
+                    [
+                        new ActionActive(StateChange.CreateStateChange(card, "z_index", start: offset, end: SolitaireGlobals.MoveZIndex + offset), duration: 0),
+                        new ActionDelay(duration: CardAnimTime),
+                        new ActionActive(StateChange.CreateStateChange(card, "z_index", start: SolitaireGlobals.MoveZIndex + offset, end: targetOffset), duration: 0)
+                    ]));
+                    
+                // Rather than recalc ChildOffsetCountForCard with each card, just assume that the next one would be 1 off
+                offset++;
+                targetOffset++;
+            }
+
+            return result;
         }
 
         public bool TryDrop(Card droppedCard, out IPile pile)
         {
+            bool result = false;
+            if (PileData.Contents.Count == 0)
+            {
+                result = droppedCard.Value == (int)FaceValue.KING;
+            }
+            else
+            {
+                // check if dropped card is the right value and acceptable suit
+                result = droppedCard.Value == PileData.Contents.First.Value.Value - 1
+                    && (int)droppedCard.Suit / 2 != (int)PileData.Contents.First.Value.Suit / 2;
+            }
+
             pile = this;
-            throw new NotImplementedException();
+            return result;
         }
 
         public void UpdateVisuals()
@@ -46,9 +83,9 @@ namespace Solitaire
             throw new NotImplementedException();
         }
 
-        public List<Card> GetCardsUnderCard(Card card)
+        public int GetChildOffsetCountForCard(Card card)
         {
-            return PileData.SearchUntilCard(card);
+            return Math.Abs(PileData.GetIndexForCard(card) - (PileData.Contents.Count - 1));
         }
     }
 }

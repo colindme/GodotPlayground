@@ -189,6 +189,13 @@ namespace Solitaire
 
             return result;
         }
+
+        public int GetChildOffsetCountForCard(Card card)
+        {
+            GD.PrintErr("GetChildOffsetCountForCard called on Deck | This should not happen");
+            return 0;
+        }
+
     }
 }
 

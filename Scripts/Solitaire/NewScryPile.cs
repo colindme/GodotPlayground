@@ -100,5 +100,12 @@ namespace Solitaire
         {
             throw new NotImplementedException();
         }
+
+        public int GetChildOffsetCountForCard(Card card)
+        {
+            // Subtract 1 at the end to convert to OffsetCount (e.g. _cardsToShow = 3 - 1 = 2 -> correct offset)
+            return Math.Max(_cardsToShow, Math.Abs(PileData.GetIndexForCard(card) - PileData.Contents.Count)) - 1;
+        }
+
     }
 }

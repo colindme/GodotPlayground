@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Solitaire
 {
@@ -32,17 +33,16 @@ namespace Solitaire
 					}
 				);
 
-				foreach(Godot.Collections.Dictionary obj in objectsUnderClick)
+				Card card = objectsUnderClick
+					.Select(o => o["collider"].AsGodotObject() as Card)
+					.Where(o => o != null)
+					.OrderByDescending(node => node.ZIndex)
+    				.FirstOrDefault();
+					
+				if (card != null)
 				{
-					if (obj.TryGetValue("collider", out Variant vCollider))
-					{
-						if (vCollider.AsGodotObject() is Card card)
-						{
-							GD.Print($"{card} : {card.PileParent.PileData.GetCardCountUnderCard(card)}");
-							GD.Print(Math.Abs(card.PileParent.PileData.GetIndexForCard(card) - (card.PileParent.PileData.Contents.Count - 1)));
-							break;
-						}
-					}
+					GD.Print($"{card} : {card.PileParent.PileData.GetCardCountUnderCard(card)}");
+					GD.Print(card.PileParent.PileData.GetIndexForCard(card));
 				}
 
 				GetViewport().SetInputAsHandled();
